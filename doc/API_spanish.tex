@@ -1,0 +1,3593 @@
+\documentclass[a4paper,11pt,oneside,openany]{book}
+%\documentclass[a4paper,twoside,11pt,titlepage]{book}
+%\usepackage[utf8]{inputenc}
+\usepackage[latin1]{inputenc} 
+\usepackage[spanish,activeacute,es-tabla]{babel}
+\usepackage[none]{hyphenat}
+\usepackage{enumitem}
+\usepackage{upgreek}
+\usepackage{amsmath}
+\usepackage{colortbl}
+\usepackage{float}
+\usepackage{dcolumn}
+\usepackage{multirow}
+\usepackage{slashbox}
+\usepackage{cite}
+\usepackage{framed, color}
+
+\decimalpoint
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{\esperiod}{-1}}
+\makeatletter
+\addto\shorthandsspanish{\let\esperiod\es@period@code}
+\makeatother
+
+% \usepackage[style=list, number=none]{glossary} %
+%\usepackage{titlesec}
+%\usepackage{pailatino}
+
+%\usepackage[chapter]{algorithm}
+\RequirePackage{verbatim}
+%\RequirePackage[Glenn]{fncychap}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{afterpage}
+
+\usepackage{longtable}
+
+\usepackage[linktocpage=true, pdfborder={000}, colorlinks]{hyperref} %referencia
+
+\hypersetup{
+pdfauthor = {Miguel Molina Moreno: miguel21@correo.ugr.es},
+pdftitle = {Documentación de la API Noise-ReduXtion.},
+pdfsubject = {},
+pdfkeywords = {reducción de ruido, smartphones, realce de la voz, Android},
+pdfcreator = {LaTeX con el paquete ....},
+pdfproducer = {pdflatex}
+}
+
+%\hyphenation{}
+
+
+%\usepackage{doxygen/doxygen}
+%\usepackage{pdfpages}
+\usepackage{url}
+\usepackage{colortbl,longtable}
+\usepackage[stable]{footmisc}
+%\usepackage{index}
+
+%\makeindex
+%\usepackage[style=long, cols=2,border=plain,toc=true,number=none]{glossary}
+%\makeglossary
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	}
+
+%\renewcommand{\glossaryname}{Glosario}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LO]{\leftmark}
+\fancyhead[RE]{\rightmark}
+\fancyhead[RO,LE]{\textbf{\thepage}}
+\setlength{\parskip}{4mm}
+\setlength{\parindent}{12pt}
+\renewcommand{\chaptermark}[1]{\markboth{\textbf{#1}}{}}
+\renewcommand{\sectionmark}[1]{\markright{\textbf{\thesection. #1}}}
+\renewcommand{\arraystretch}{1}
+
+\setlength{\headheight}{1.5\headheight}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+%Definimos los tipos teorema, ejemplo y definición podremos usar estos tipos
+%simplemente poniendo \begin{teorema} \end{teorema} ...
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{ejemplo}{Ejemplo}[chapter]
+\newtheorem{definicion}{Definición}[chapter]
+
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\definecolor{gray30}{gray}{.94}
+\definecolor{shadecolor}{gray}{.94}
+
+\usepackage{pdfpages}
+\begin{document}
+\tableofcontents 
+\sloppy
+\frontmatter
+\pagenumbering{Roman}
+%
+\mainmatter
+\pagenumbering{arabic}
+\setlength{\parskip}{5pt}
+
+\chapter{Documentación de la API Noise-ReduXtion.}\label{docum}
+\section{Descripción}
+La API Noise-Reduxtion proporciona una serie de algoritmos para su uso con móviles con micrófono dual, en aplicaciones que procesen la voz con el objetivo final de la percepción por parte del usuario, no un reconocedor de voz. Ejemplos de este tipo de aplicaciones son aquellas que implementan llamadas, trabajan con notas de voz,...
+
+Los algoritmos de la API trabajan en el dominio de la frecuencia. Además, la API incluye recursos para:
+
+\begin{itemize}
+\item Convertir las señales del dominio del tiempo al dominio de la frecuencia.
+\item Procesarlas en el dominio de la frecuencia con el objetivo de reducir el ruido y obtener una buena estimación de la señal de voz limpia. Hay dos tipos de algoritmos: 
+\begin{enumerate}
+\item Algoritmos que filtran las señales del micrófono dual: MVDR (\emph{Minimum Variance Distortionless Response}).
+\item Algoritmos cuya operación radica en la diferencia de potencia entre los micrófonos, la señal de voz limpia llega al primer micrófono con una potencia mayor que al segundo. Estos son: PLD (\emph{Power Level Differences}) and PLR (\emph{Power Level Ratio}, este último basado en la función sigmoide.
+\end{enumerate}
+\item Obtener las señales en el dominio del tiempo de las señales modificadas en el dominio de la frecuencia.
+\end{itemize}
+
+La API está programada en Java y diseñada para su uso en Android. Además se incluyen una serie de librerías en código nativo de cara a su uso en tiempo real.
+
+La librería se distribuye bajo licencia...
+
+\section{Uso}
+
+Esta API se puede usar con los siguientes propósitos:
+
+\begin{itemize}
+\item Reducción de ruido en notas de audio de pocos segundos. En esta situación se pueden usar los recursos del modo de operación \emph{note-based} de la API.
+\item Reducción de ruido en notas de audio largas, o procesamiento de la voz en tiempo real. En este caso se usan los recursos del modo de operación \emph{frame-based}. La API proporciona tramas de audio de voz limpia con el mismo tamaño que las tramas entrantes. El rendimiento depende de la capacidad de procesamiento del teléfono móvil utilizado.
+\end{itemize}
+
+En cuanto a la posición del móvil adecuada para la grabación del sonido; en principio los algoritmos pertenecientes a la API han sido desarrollados para su uso en posición conversacional. Sin embargo, también se pueden aplicar cuando el teléfono está localizado enfrente de la boca, cercano a ella, ya que el contexto acústico es similar a la posición conversacional: el micrófono primario captura la señal de voz limpia con mucha más potencia que el secundario. La distancia entre micrófonos está en torno a 10 cm.
+
+En este entorno, se puede esperar una mejora de entre 2 y 6 dB en SNR (o incluso mayor si la SNR de las señales de entrada es muy pobre) y de entre 0.05 y 0.25 en PESQ a partir de la aplicación de un algoritmo adecuado de la API. El rendimiento específico depende del contexto acústico, la SNR de la señal de entrada,...
+
+\section{Detalles de los algoritmos}
+
+La API Noise-ReduXtion reúne algunos modernos algoritmos que pueden ser usados en \emph{smartphones} con dos micrófonos, para mejorar la calidad de la voz a oídos de los usuarios. A continuación se describen las principales características de cada algoritmo, para facilitar su elección y uso por parte de los usuarios.
+
+\begin{itemize}
+\item MVDR (\emph{Minimum Variance Distortionless Response}) con retardo entre micrófonos. Esta es la implementación estándar del algoritmo MVDR, pero adaptada para su uso en móviles en el dominio de la frecuencia (obteniendo la magnitud de la atenuación para cada intervalo de frecuencias). El algoritmo MVDR trata de compensar la atenuación y el retardo entre micrófonos a través de una combinación entre canales con diferentes pesos. Sus principales ventajas son la naturalidad de la voz y una cierta independencia de la SNR de la señal de entrada. Sin embargo, en los tests realizados la calidad de la voz se ve degradada por reverberación. Aún así se incluye en la API, ya que si las dimensiones del teléfono se hacen mayores puede ser útil.
+
+\item MVDR (\emph{Minimum Variance Distortionless Response}) sin retardo entre micrófonos. Es una implementación alternativa del algoritmo MVDR que no tiene en cuenta el retardo. Si la distancia entre micrófonos es pequeña (en torno a 10 cm), el retardo se puede despreciar sin un gran incremento del error. Además se previene la reverberación en la señal de salida. La voz obtenida tiene una gran naturalidad y una fuerte reducción del ruido. Por otra parte, el MVDR tiene una complejidad computacional media.
+
+\item PLD (\emph{Power Level Differences}). El algoritmo PLD usa la diferencia de potencia entre canales para el cálculo de una ganancia para ser aplicada a la señal del primer canal. Consigue una fuerte reducción del ruido pero la naturalidad de la señal de voz se ve degradada por el ruido musical. La API contiene un algoritmo para suprimir parte del ruido musical. Si se usa, los resultados mejoran. La cantidad de ruido eliminado depende de la SNR de la señal de entrada, el algoritmo actúa mejor con SNRs bajas.
+
+\item PLR (\emph{Power Level Ratio}) basado en la función sigmoide. El algoritmo tiene el mismo fundamento que el PLD: el cálculo de una ganancia para realzar la señal del primer canal. Sin embargo, el procedimiento es mucho más simple. La cantidad de ruido eliminado es menor que en el caso del PLD, pero la presencia de ruido musical también es menor. Además, la complejidad computacional es es menor que en el resto de algoritmos.
+
+\end{itemize}
+
+\section{Índice de paquetes}
+
+
+Estos son los paquetes presentes en la API:
+
+\begin{longtable}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Paquete} & \textbf{Descripción}\\
+\hline
+\textbf{speech.common} & Contiene las clases comunes a los modos de operación \emph{note-based} y \emph{frame-based}.\\
+\hline
+\textbf{speech.note} & Proporciona las clases para el modo de operación \emph{note-based}.\\
+\hline
+\textbf{speech.frame} & Proporciona las clases para el modo de operación \emph{frame-based}.\\
+\hline
+\end{longtable}
+
+\textbf{Nota: }los paquetes speech.note y speech.frame tienen la misma estructura, pero su uso e implementación de los métodos es distinta.
+
+\section{Jerarquía de clases}
+
+El árbol de jerarquía para todos los paquetes de la librería es el siguiente:
+\newline
+
+\begin{itemize}
+\item speech
+\begin{itemize}
+\item common
+\begin{itemize}
+\item Complex
+\item FFT
+\item MusFilter
+\end{itemize}
+\item frame
+\begin{itemize}
+\item EnhproFB
+\item FilteringFB
+\item MVDRFB
+\item MVDRdFB
+\item NoiseReductionFB
+\item PLDFB
+\item PowerLevelFB
+\item SigmoidFB
+\end{itemize}
+\item note
+\begin{itemize}
+\item EnhproNB
+\item FilteringNB
+\item MVDRNB
+\item MVDRdNB
+\item NoiseReductionNB
+\item PLDNB
+\item PowerLevelNB
+\item SigmoidNB
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+El diagrama de jerarquía para cada modo de operación con las relaciones entre clases se puede ver en las figuras \ref{fh} and \ref{nh}.
+
+\begin{figure} [!ht]
+\begin{center}
+  \includegraphics[width=0.9\textwidth]{framehier.png}
+  \caption{Relaciones para el modo de operación \emph{frame-based}.}
+  \label{fh}
+\end{center}
+\end{figure}
+
+\begin{figure} [!ht]
+\begin{center}
+  \includegraphics[width=0.9\textwidth]{notehier.png}
+  \caption{Relaciones para el modo de operación \emph{note-based}.}
+  \label{nh}
+\end{center}
+\end{figure}
+
+Las clases abstractas se muestran con tipografía cursiva. Las superclases de las que heredan otras tienen color azul, en negro se muestran las clases comunes a todos los paquetes, y en morado las clases de los algoritmos que deben ser usadas para la aplicación de los algoritmos. En color verde se muestra la clase Enhpro, que implementa el método \emph{Overlap-Add}.
+
+En cuanto a las relaciones entre clases, la herencia se simboliza con una flecha blanca. Es el caso de las clases \emph{Filtering} y \emph{PowerLevel} con \emph{NoiseReduction}, por ejemplo. El rombo blanco indica que uno o más objetos de una clase son utilizados por otra clase (la denominada agregación). 
+
+\section{Clases}
+
+\subsection{Complex}
+
+speech.common.Complex $>>>$ public class Complex extends java.lang.Object
+
+\subsubsection*{Visión General}
+
+Complex es la clase que representa un número complejo. Incluye las partes real e imaginaria (el número complejo en forma canónica), y las operaciones principales.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public Complex ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{public Complex (double real\_part, double imaginary\_part)}\\
+Constructor con parámetros\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public double & \textbf{getReal()}\\
+&Devuelve la parte real.\\
+\hline
+public double & \textbf{getImag()}\\
+&Devuelve la parte imaginaria.\\
+\hline
+public Complex & \textbf{conjugated()}\\
+&Devuelve el conjugado.\\
+\hline
+public Complex & \textbf{opposite()}\\
+&Devuelve el opuesto.\\
+\hline
+public double & \textbf{module()}\\
+&Devuelve el módulo.\\
+\hline
+public double & \textbf{phase()}\\
+&Devuelve la fase.\\
+\hline
+public Complex & \textbf{modToComp(double mod, double phase)}\\
+&Devuelve el número complejo a partir de su módulo y fase.\\
+\hline
+public Complex & \textbf{addition(Complex n)}\\
+&Devuelve la suma entre el número complejo y el complejo dado.\\
+\hline
+public Complex & \textbf{addition(double n)}\\
+&Devuelve la suma entre el número complejo y el real dado.\\
+\hline
+public Complex & \textbf{subtraction(Complex n)}\\
+&Devuelve el resultado de la resta del número complejo con el complejo dado.\\
+\hline
+public Complex & \textbf{product(Complex n)}\\
+&Devuelve el producto del número complejo con el complejo dado.\\
+\hline
+public Complex & \textbf{product(double n)}\\
+&Devuelve el producto del número complejo con el real dado.\\
+\hline
+public Complex & \textbf{division(Complex n)}\\
+&Devuelve el cociente del número complejo con el complejo dado.\\
+\hline
+public Complex & \textbf{division(double n)}\\
+&Devuelve el cociente del número complejo con el real dado.\\
+\hline
+public String & \textbf{toString()}\\
+&Escribe el número complejo como cadena de caracteres.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{real}\\
+&La parte real del número complejo. Por defecto 0.\\
+\hline
+private final double & \textbf{imaginary}\\
+&La parte imaginaria del número complejo. Por defecto 0.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex ()}\\
+\hline
+Crea un nuevo número complejo cuyas partes real e imaginaria son 0.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex (double real\_part, double imaginary\_part)}\\
+\hline
+Crea un nuevo número complejo con las partes real e imaginaria dadas.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{real\_part:} la parte real del número complejo.\\
+\emph{imag\_part:} la parte imaginaria del número complejo.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public double getReal()}\\
+\hline
+Obtiene la parte real del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el valor del campo real.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public double getImag()}\\
+\hline
+Obtiene la parte imaginaria del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el valor del campo imag.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex conjugated()}\\
+\hline
+Obtiene el conjugado del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex con la misma parte real y el opuesto de la parte imaginaria.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex opposite()}\\
+\hline
+Obtiene el opuesto del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex con el opuesto de las partes real e imaginaria.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public double module()}\\
+\hline
+Obtiene el módulo del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el valor del módulo con doble precisión.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public double phase()}\\
+\hline
+Obtiene la fase del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el valor de la fase con doble precisión.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex modToComp(double mod, double phase)}\\
+\hline
+Obtiene un nuevo número complejo a partir de su módulo y fase.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{mod:} el módulo del número complejo.\\
+\emph{phase:} la fase del número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex en su forma canónica.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex addition(Complex n)}\\
+\hline
+Suma el número complejo con otro dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número complejo\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex suma de este número complejo y el complejo dado.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex addition(double n)}\\
+\hline
+Suma el número complejo y uno real dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número real.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex suma de este número complejo y el real dado.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex subtraction(Complex n)}\\
+\hline
+Resta un complejo dado del número complejo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex con el resultado de la resta entre este número y el complejo dado.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex product(Complex n)}\\
+\hline
+Multiplica el número complejo por el complejo dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex producto de este número complejo y el complejo dado.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex product(double n)}\\
+\hline
+Multiplica el número complejo por el real dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número real.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex producto de este número complejo y el real dado.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex division (Complex n) throws ArithmeticException}\\
+\hline
+Divide el número complejo por el complejo dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex cociente de este número complejo y el complejo dado.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{ArithmeticException:} si el complejo n es de módulo 0.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public Complex division (double n) throws ArithmeticException}\\
+\hline
+Divide el número complejo por el real dado.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n:} un número complejo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto Complex cociente de este número complejo y el real dado.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{ArithmeticException:} si el parámetro n es igual a 0.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public String toString()}\\
+\hline
+Escribe el número complejo como sigue: real + imag i.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un objeto String con el número complejo en forma canónica.\\
+\hline
+\end{longtable}
+
+\subsection{FFT}
+
+speech.common.FFT $>>>$ public abstract class FFT extends java.lang.Object
+
+\subsubsection*{Visión General}
+
+FFT es una clase abstracta que incluye una serie de algoritmos para convertir las señales del dominio del tiempo al dominio de la frecuencia y viceversa, y para convolucionar dos señales.
+
+\subsubsection*{Resumen de Constructores}
+
+La clase FFT no tiene constructores.
+
+\subsubsection*{Resumen de métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public static Complex[] & \textbf{fft(Complex[] signal, int M)}\\
+&Devuelve la FFT de una señal.\\
+\hline
+public static Complex[] & \textbf{ifft(Complex[] sfreq, int M)}\\
+&Devuelve la IFFT de una señal.\\
+\hline
+public static double[] & \textbf{convolution(double[] signal1, double[] signal2)}\\
+&Devuelve la convolución entre 2 señales.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+Esta clase no tiene campos.
+
+\subsubsection*{Especificación de métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public static Complex[] fft(Complex[] signal, int M)}\\
+\hline
+Obtiene la Transformada Rápida de Fourier de una señal, con M el número de muestras.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{signal:} una señal Complex en el dominio del tiempo.\\
+\emph{M:} número de muestras para la transformada.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un vector Complex resultado de la FFT.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public static Complex[] ifft(Complex[] sfreq, int M)}\\
+\hline
+Obtiene la Transformada Rápida de Fourier Inversa de sfreq, con M el número de muestras.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{sfreq:} una señal Complex en el dominio de la frecuencia.\\
+\emph{M:} número de muestras para la transformada.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un vector Complex vector resultado de la IFFT.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public static double[] convolution(double[] signal1, double[] signal2)}\\
+\hline
+Obtiene la convolución entre signal1 y signal2.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{signal1:} una señal flotante de doble precisión.\\
+\emph{signal2:} otra señal flotante de doble precisión.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un vector double resultado de la convolución, con número de muestras suma de las longitudes de signal1 y signal2.\\
+\hline
+\end{longtable}
+
+\subsection{MusFilter}
+
+speech.common.MusFilter $>>>$ public class MusFilter extends java.lang.Object
+
+\subsubsection*{Visión General}
+
+MusFilter es la clase que implementa el método de reducción del ruido musical.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public MusFilter ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{public MusFilter(double Eu\_def, int PHIu\_def, int f0u\_def, int Fsu\_def)}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public double[][] & \textbf{musfilter(Complex[][] Xf1, double[][] G0)}\\
+&Devuelve las ganancias modificadas para eliminar el ruido musical.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{Eth}\\
+&Umbral para la detección de baja SNR. Por defecto 0.4.\\
+\hline
+private final int & \textbf{f0}\\
+&Frecuencia por debajo de la cual se realiza la supresión de ruido musical. Por defecto 1000.\\
+\hline
+private final int & \textbf{Fs}\\
+&Frecuencia de muestreo. Por defecto 8000.\\
+\hline
+private final int & \textbf{PHI}\\
+&Factor de escala para el máximo grado de suavizado en el filtrado. Por defecto 10.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MusFilter ()}\\
+\hline
+Crea un nuevo objeto MusFilter con los campos inicializados a los valores por defecto.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MusFilter(double Eu\_def, int PHIu\_def, int f0u\_def, int Fsu\_def)}\\
+\hline
+Crea un nuevo objeto MusFilter con los valores dados para los campos.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Eu\_def:} umbral de detección de baja SNR definido por el usuario.\\
+\emph{PHIu\_def:} factor de escala para el suavizado definido por el usuario.\\
+\emph{f0u\_def:} frecuencia umbral para la reducción de ruido musical definida por el usuario.\\
+\emph{Fsu\_def:} frecuencia de muestreo definida por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public double[][] musfilter(Complex[][] Xf1, double[][] G0)}\\
+\hline
+Modifica las ganancias para eliminar el ruido musical a partir de una detección de las regiones de baja SNR y suavizado adaptativo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Xf1:} tramas de señal en el dominio de la frecuencia.\\
+\emph{G0:} ganancias iniciales para cada trama.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una matriz tipo double con las ganancias modificadas para cada trama.\\
+\hline
+\end{longtable}
+
+\subsection{EnhproFB}
+
+speech.common.EnhproFB $>>>$ public class EnhproFB extends java.lang.Object
+
+\subsubsection*{Visión General}
+
+La clase EnhproFB se ocupa de implementar el método Overlap-Add, para el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public EnhproFB ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{public EnhproFB(int Freq, int Lframe, int Ltransf)}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public void & \textbf{preProcessing(short[] x1, short[] x2)}\\
+&Convierte las tramas en el dominio del tiempo al dominio de la frecuencia.\\
+\hline
+public void & \textbf{postProcessing(Complex[][] Xf, boolean end)}\\
+&Convierte las tramas en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+public int & \textbf{getFs()}\\
+&Devuelve la frecuencia de muestreo.\\
+\hline
+public int & \textbf{getM()}\\
+&Devuelve el número de muestras para la FFT.\\
+\hline
+private static Complex[] & \textbf{obtCol(Complex[][] mat, int index)}\\
+&Devuelve una columna de mat.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private boolean & \textbf{initPre}\\
+&Indica si es la primera iteración del método pre-processing (\emph{true}) o no (\emph{false}). Por defecto \emph{true}.\\
+\hline
+private boolean & \textbf{initPost}\\
+&Indica si es la primera iteración del método post-processing (\emph{true}) o no (\emph{false}). Por defecto \emph{true}.\\
+\hline
+private int & \textbf{L}\\
+&Longitud de la trama en el dominio del tiempo. Por defecto 160.\\
+\hline
+private int & \textbf{Os}\\
+&Longitud de solapamiento (la mitad de la longitud de trama). Por defecto 80.\\
+\hline
+private int & \textbf{Fs}\\
+&Frecuencia de muestreo. Por defecto 8000.\\
+\hline
+private int & \textbf{M}\\
+&Número de muestras para la FFT. Por defecto 256.\\
+\hline
+private double & \textbf{a0}\\
+&Parámetro para la ventana de Hann. Por defecto 0.5.\\
+\hline
+private double & \textbf{a1}\\
+&Parámetro para la ventana de Hann. Por defecto 0.5\\
+\hline
+private double[] & \textbf{hann}\\
+&Ventana de Hann, de longitud L.\\
+\hline
+private short[] & \textbf{ov1}\\
+&Muestras que se solapan para la señal del primer micrófono, de longitud Os.\\
+\hline
+private short[] & \textbf{ov2}\\
+&Muestras que se solapan para la señal del segundo micrófono, de longitud Os.\\
+\hline
+private Complex[] & \textbf{frame1}\\
+&Trama actual para la señal del primer micrófono, de longitud L.\\
+\hline
+private Complex[] & \textbf{frame2}\\
+&Trama actual para la señal del segundo micrófono, de longitud L.\\
+\hline
+Complex[] & \textbf{Xf1}\\
+&Conversión al dominio de la frecuencia de la trama del primer micrófono.\\
+\hline
+Complex[] & \textbf{Xf2}\\
+&Conversión al dominio de la frecuencia de la trama del segundo micrófono.\\
+\hline
+Complex[] & \textbf{Xcomplex}\\
+&Trama reconstruida.\\
+\hline
+short[] & \textbf{Xrec}\\
+&Trama reconstruida, con codificación PCM.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public EnhproFB ()}\\
+\hline
+Crea un nuevo objeto EnhproFB con valores por defecto de los campos.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public EnhproFB(int Freq, int Lframe, int Ltransf) throws InvalidFrequencyException, InvalidParametersException}\\
+\hline
+Crea un nuevo objeto EnhproFB con los valores dados para los campos dados. El resto de campos tienen los valores por defecto.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void preProcessing(short[] x1, short[] x2)}\\
+\hline
+Convierte la trama en el dominio del tiempo al dominio de la frecuencia, con enventanado y solapamiento del 50\%.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del primer micrófono.\\
+\emph{x2:} trama de señal del segundo micrófono.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void postProcessing(Complex[][] Xf, boolean end)}\\
+\hline
+Convierte la trama en el dominio de la frecuencia al dominio del tiempo, aplicando el método Overlap-Add.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Xf:} trama de señal en el dominio de la frecuencia.\\
+\emph{end:} indica si la trama es la última (\emph{true}) o no (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public int getFs ()}\\
+\hline
+Obtiene la frecuencia de muestreo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el campo entero Fs.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public int getM ()}\\
+\hline
+Obtiene el número de muestras para la FFT.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el campo entero M.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private static Complex[] obtCol (Complex[][] mat, int index)}\\
+\hline
+Obtiene la columna index de la matriz mat.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{mat:} una matriz.\\
+\emph{index:} el índice de la columna a extraer.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un vector con la columna del índice dado.\\
+\hline
+\end{longtable}
+
+\subsection{NoiseReductionFB}
+
+speech.common.NoiseReductionFB $>>>$ public abstract class NoiseReductionFB extends java.lang.Object
+
+\subsubsection*{Subclases Directas}
+
+FilteringFB
+
+PowerLevelFB
+
+\subsubsection*{Visión General}
+
+NoiseReductionFB es la superclase abstracta que agrupa todos los tipos de algoritmos que trabajan en modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{NoiseReductionFB ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{NoiseReductionFB(int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing(short[] x1, short[] x2)}\\
+&Realiza el pre-procesamiento de las tramas.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+EnhproFB & \textbf{freq\_time}\\
+&Objeto de la clase EnhproFB para el procesamiento.\\
+\hline
+Complex[][] & \textbf{Xf}\\
+&Señal procesada en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{NoiseReductionFB ()}\\
+\hline
+Crea un nuevo objeto NoiseReductionFB que inicializa el objeto EnhproFB.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{NoiseReductionFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto NoiseReductionFB que inicializa el objeto EnhproFB con los parámetros dados.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing(short[] x1, short[] x2)}\\
+\hline
+Llama al método de pre-procesamiento de la clase EnhproFB para convertir las tramas al dominio de la frecuencia. Inicializa la trama procesada Xf.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\hline
+\end{longtable}
+
+\subsection{FilteringFB}
+
+speech.common.FilteringFB $>>>$ public abstract class FilteringFB extends NoiseReductionFB
+
+\subsubsection*{Subclases Directas}
+
+MVDRFB
+
+MVDRdFB
+
+\subsubsection*{Visión General}
+
+FilteringFB es la superclase abstracta que agrupa los algoritmos basados en el filtrado de las señales entrantes que trabajan en el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{FilteringFB ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{FilteringFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing(short[] x1, short[] x2)}\\
+&Realiza el pre-procesamiento de las tramas.\\
+\hline
+short[] & \textbf{obtainXrec(boolean end)}\\
+&Convierte las tramas en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+public void & \textbf{changeAtFactor(double[][] newAt)}\\
+&Cambia el factor de atenuación entre los dos micrófonos.\\
+\hline
+public void & \textbf{changeDel(double newDel)}\\
+&Cambia el retardo entre micrófonos.\\
+\hline
+void & \textbf{meanCorr(double[] v1, double v2[], int end)}\\
+&Devuelve la media de la correlación entre las primeras muestras de los vectores, dadas por el parámetro end.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+double[][] & \textbf{at}\\
+&Factor de atenuación (en magnitud) entre micrófonos, para cada intervalo de frecuencia. Valores por defecto: ver \label{attabla}.\\
+\hline
+private double & \textbf{del}\\
+&Retardo entre micrófonos, en muestras. Por defecto: 2.2745 muestras.\\
+\hline
+final Complex[] & \textbf{d}\\
+&Estimación del \emph{steering vector}.\\
+\hline
+final double[] & \textbf{f}\\
+&Vector de frecuencias para cada intervalo.\\
+\hline
+Complex[] & \textbf{w}\\
+&Vector de pesos.\\
+\hline
+private double[][] & \textbf{phases}\\
+&Fases de la trama del primer canal.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{FilteringFB ()}\\
+\hline
+Crea un nuevo objeto FilteringFB. Inicializa las dimensiones de los vectores y los valores del vector de frecuencias y el \emph{steering vector}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{FilteringFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto FilteringFB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores del vector de frecuencias y el \emph{steering vector}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing(short[] x1, short[] x2)}\\
+\hline
+Llama al método del mismo nombre de la superclase e inicializa las dimensiones del vector de fases.\\
+\textbf{\textcolor{gray45}{Sobrescribe:}}\\
+el método initProcessing de la clase NoiseReductionFB.
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{short[] obtainXrec(boolean end)}\\
+\hline
+Añade las fases del primer canal a la trama reconstruida en el dominio de la frecuencia. Convierte la señal al dominio del tiempo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{end:} indica si la trama es la última (\emph{true}) o no (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama con precisión \emph{short} en el dominio del tiempo.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public static void \emph{changeAt}(double[][] newAt)}\\
+\hline
+Cambia el factor de atenuación entre micrófonos por uno nuevo. Debe tener una dimensión de $[\frac{M}{2}+1][2]$, siendo M el tamaño de la FFT.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{newAt:} el nuevo factor de atenuación.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public static void \emph{changeDel}(double newDel)}\\
+\hline
+Cambia del retardo entre micrófonos por uno nuevo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{newDel:} el nuevo retardo en muestras.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{double meanCorr(double[] v1, double[] v2, int end)}\\
+\hline
+Calcula la media de la correlación entre el número de muestras de v1 y v2 dado por end.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{v1:} el primer vector.\\
+\emph{v2:} el segundo vector.\\
+\emph{end:} el número de muestras tratadas.\\
+\hline
+\end{longtable}
+
+
+\subsection{PowerLevelFB}
+
+speech.common.PowerLevelFB $>>>$ public abstract class PowerLevelFB extends NoiseReductionFB
+
+\subsubsection*{Subclases Directas}
+
+PLDFB
+
+SigmoidFB
+
+\subsubsection*{Visión General}
+
+PowerLevelFB es la superclase abstracta que agrupa los algoritmos basados en las diferencia del nivel de potencia entre las señales del micrófono dual, que trabajan en el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{PowerLevelFB (boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{PowerLevelFB (boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing(short[] x1, short[] x2)}\\
+&Realiza el pre-procesamiento de las tramas.\\
+\hline
+short[] & \textbf{obtainXrec(boolean end)}\\
+&Convierte las tramas en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+private void & \textbf{rec(double[][] Gan, Complex[][] Sfreq)}\\
+&Aplica la ganancia espectral a las tramas en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+final double & \textbf{a1}\\
+&\emph{Forgetting factor} para el cálculo de la PSD. Por defecto 0.9.\\
+\hline
+final boolean & \textbf{WN}\\
+&Indica si se aplica la reducción de ruido musical (\emph{true}) o no (\emph{false}). Por defecto \emph{false}.\\
+\hline
+double[][] & \textbf{PSD1}\\
+&Densidad de Potencia Espectral del canal primario.\\
+\hline
+double[][] & \textbf{PSD2}\\
+&Densidad de Potencia Espectral del canal secundario.\\
+\hline
+double[][] & \textbf{G}\\
+&Ganancia espectral.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{PowerLevelFB (boolean noise)}\\
+\hline
+Crea un nuevo objeto PowerLevelFB. Inicializa las dimensiones de los vectores de PSDs y los campos por defecto, y WN con el valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se aplica la reducción del ruido musical (\emph{true}), or not (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{PowerLevelFB (boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto PowerLevelFB, con los parámetros anteriores. Inicializa las dimensiones de los vectores de PSDs y los campos por defecto, y WN con el valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se aplica la reducción del ruido musical (\emph{true}), or not (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing(short[] x1, short[] x2)}\\
+\hline
+Llama al método del mismo nombre de la superclase e inicializa las dimensiones del vector de ganancias espectrales.\\
+\textbf{\textcolor{gray45}{Sobrescribe:}}\\
+el método initProcessing de la clase NoiseReductionFB.
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{short[] obtainXrec(boolean end)}\\
+\hline
+Reconstruye la trama a partir de la ganancia espectral en el dominio de la frecuencia. Obtiene la señal de nuevo en el dominio del tiempo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{end:} indica si la trama es la última (\emph{true}) o no (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+la trama en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private void rec(double[][] Gan, Complex[][] Sfreq)}\\
+\hline
+Aplica la ganancia espectral a las tramas en el dominio de la frecuencia a través de un producto en cada intervalo de frecuencia.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Gan:} ganancia espectral.\\
+\emph{Sfreq:} tramas en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsection{MVDRFB}
+
+speech.common.MVDRFB $>>>$ public class MVDRFB extends FilteringFB
+
+\subsubsection*{Visión General}
+
+MVDRFB es la clase que implementa el algoritmo MVDR sin tener en cuenta el retardo entre canales, para el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public MVDRFB ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{public MVDRFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Method Summary}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing(short[] x1, short[] x2, boolean end) throws ArithmeticException}\\
+&Realiza el procesamiento de las tramas de acuerdo con el algoritmo MVDR, sin retardo.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private int & \textbf{count}\\
+&Contador de tramas. Por defecto 0.\\
+\hline
+private double & \textbf{N1}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double & \textbf{N2}\\
+&Vector de muestras de ruido para el segundo canal.\\
+\hline
+private double[][] & \textbf{R}\\
+&Matriz de correlaciones de ruido.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.FilteringFB: }\\
+\hline
+at, d, f, w\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRFB ()}\\
+\hline
+Crea un nuevo objeto MVDRFB. Inicializa las dimensiones de los vectores de muestras de ruido, y el contador de tramas a 0.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto MVDRFB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores de muestras de ruido, y el contador de tramas a 0.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing(short[] x1, short[] x2, boolean end) throws ArithmeticException}\\
+\hline
+Aplica el algoritmo MVDR, sin retardo entre canales, a las tramas dadas.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\emph{end:} indica si la trama es la última (\emph{true}) o no (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama en el dominio del tiempo, en formato entero \emph{short}.
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{Arithmetic Exception:} ver método division en la clase Complex.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.FilteringFB: }\\
+\hline
+initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
+\hline
+\end{longtable}
+
+\subsection{MVDRdFB}
+
+speech.common.MVDRdFB $>>>$ public class MVDRdFB extends FilteringFB
+
+\subsubsection*{Visión General}
+
+MVDRdFB es la clase que implementa el algoritmo MVDR con retardo entre micrófonos, para el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public MVDRdFB ()}\\
+Constructor por defecto.\\
+\hline
+\textbf{public MVDRdFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing(short[] x1, short[] x2, boolean end) throws ArithmeticException}\\
+&Realiza el procesamiento de las tramas de acuerdo con el algoritmo MVDR, con retardo.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private int & \textbf{count}\\
+&Contador de tramas. Por defecto 0.\\
+\hline
+private double & \textbf{N1}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double & \textbf{N2}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double[][] & \textbf{R}\\
+&Matriz de correlaciones de ruido.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.FilteringFB: }\\
+\hline
+at, d, f, w\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRdFB ()}\\
+\hline
+Crea un nuevo objeto MVDRdFB. Inicializa las dimensiones de los vectores de muestras de ruido,  el contador de tramas a cero.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRFB (int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto MVDRdFB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores de muestras de ruido,  el contador de tramas a cero.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing(short[] x1, short[] x2, boolean end) throws ArithmeticException}\\
+\hline
+Aplica el algoritmo MVDR teniendo en cuenta el retardo entre canales, a las tramas dadas.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\emph{end:} indica si la trama es la última (\emph{true}) o no (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama en el dominio del tiempo, en formato entero \emph{short}.
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{Arithmetic Exception:} ver método division en la clase Complex.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.FilteringFB: }\\
+\hline
+initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
+\hline
+\end{longtable}
+
+\subsection{PLDFB}
+
+speech.common.PLDFB $>>>$ public class PLDFB extends PowerLevelFB
+
+\subsubsection*{Visión General}
+
+PLDFB es la clase que implementa el algoritmo PLD, para el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public PLDFB (boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public PLDFB (boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing(short[] x1, short[] x2, boolean end)}\\
+&Realiza el procesamiento de las tramas de acuerdo con el algoritmo PLD.\\
+\hline
+private double & \textbf{sinc (double x))}\\
+&Devuelve el valor de la función \emph{sinc} de argumento \emph{x}.\\
+\hline
+private double & \textbf{max (double n1, double n2))}\\
+&Devuelve el máximo valor de dos argumentos.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{a2}\\
+&\emph{Forgetting factor} para la actualización de la PSD del ruido en caso de sólo ruido. Por defecto 0.9.\\
+\hline
+private final double & \textbf{a3}\\
+&\emph{Forgetting factor} para la actualización de la PSD del ruido en caso de que haya presencia de voz y ruido. Por defecto 0.8.\\
+\hline
+private final double & \textbf{minth}\\
+&Umbral mínimo PLDNE para la consideración de sólo ruido. Por defecto 0.2.\\
+\hline
+private final double & \textbf{maxth}\\
+&Umbral máximo PLDNE para la consideración de sólo voz. Por defecto 0.8.\\
+\hline
+private final double & \textbf{dmic}\\
+&Distancia entre micrófonos. Por defecto 0.1 m.\\
+\hline
+private final double & \textbf{c}\\
+&Velocidad del sonido. Por defecto $340 \frac{m}{s}$.\\
+\hline
+private final double & \textbf{gamma}\\
+&Factor de sobrestimación del ruido.  Default 4.\\
+\hline
+private double[] & \textbf{f}\\
+&Vector de frecuencias para cada intervalo.\\
+\hline
+private double[] & \textbf{Coh}\\
+&Función de coherencia para campo de ruido difuso.\\
+\hline
+private double[][] & \textbf{PSD12}\\
+&PSD cruzada entre canales.\\
+\hline
+private double[][] & \textbf{PSDr}\\
+&Estimación de la PSD del ruido.\\
+\hline
+private double[][] & \textbf{PLDNE}\\
+&Estimador de ruido PLD (0 indica ausencia de ruido, 1 sólo presencia de voz).\\
+\hline
+private double[][] & \textbf{H12}\\
+&Función de transferencia entre canales.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+WN, a1, PSD1, PSD2, G\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public PLDFB (boolean noise)}\\
+\hline
+Crea un nuevo objeto PLDFB. Inicializa los campos y las dimensiones de los vectores. El uso de la reducción del ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se usa reducción del ruido musical (\emph{true}), or not (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public PLDFB (boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto PLDFB con parámetros definidos por el usuario. Inicializa los campos y las dimensiones de los vectores. El uso de la reducción del ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se aplica la reducción del ruido musical (\emph{true}), or not (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing(short[] x1, short[] x2, boolean end)}\\
+\hline
+Aplica el algoritmo PLD a las tramas dadas. El uso de la reducción del ruido musical depende del parámetro del constructor.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\emph{end:} indica si la trama es la última (\emph{true}) or not (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private double sinc (double x)}\\
+\hline
+Obtiene el valor de la función \emph{sinc} normalizada para el argumento \emph{x}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x:} valor del que obtener la función \emph{sinc}.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un flotante de doble precisión entre -1 y 1.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private double max (double n1, double n2)}\\
+\hline
+Obtiene el máximo valor entre 2 argumentos.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n1:} primer valor.\\
+\emph{n2:} segundo valor.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el valor máximo de los dos.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+initProcessing, obtainXrec\\
+\hline
+\end{longtable}
+
+\subsection{SigmoidFB}
+
+speech.common.SigmoidFB $>>>$ public class SigmoidFB extends PowerLevelFB
+
+\subsubsection*{Visión general}
+
+SigmoidFB es la clase que implementa el algoritmo PLR (\emph{Power Level Ratio}) basado en la función sigmoide, para el modo de operación \emph{frame-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public SigmoidFB (boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public SigmoidFB (boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing(short[] x1, short[] x2, boolean end)}\\
+&Realiza el procesamiento de las señales de acuerdo con el algoritmo PLR.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{a}\\
+&Pendiente de la función sigmoide. Por defecto 2.\\
+\hline
+private final double & \textbf{c}\\
+&Media de la función sigmoide. Por defecto 1.9.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+WN, a1, PSD1, PSD2, G\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public SigmoidFB (boolean noise)}\\
+\hline
+Crea un nuevo objeto SigmoidFB. Inicializa los campos y las dimensiones de los vectores. El uso de la reducción del ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se aplica la reducción del ruido musical (\emph{true}), or not (\emph{false}).\\\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public SigmoidFB (boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproFB.InvalidFrequencyException, EnhproFB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto SigmoidFB con parámetros definidos por el usuario. Inicializa los campos y las dimensiones de los vectores. El uso de la reducción del ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{noise:} indica si se aplica la reducción del ruido musical (\emph{true}), or not (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing(short[] x1, short[] x2, boolean end)}\\
+\hline
+Aplica el algoritmo PLR usando la función sigmoide a las tramas dadas. Se usa la reducción de ruido dependiendo del parámetro del constructor.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\emph{end:} indica si la trama es la última (\emph{true}) or not (\emph{false}).\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+initProcessing, obtainXrec\\
+\hline
+\end{longtable}
+
+\subsection{EnhproNB}
+
+speech.common.EnhproNB $>>>$ public class EnhproNB extends java.lang.Object
+
+\subsubsection*{Visión General}
+
+La clase EnhproNB se ocupa de implementar el método Overlap-Add, para el modo de operación \emph{note-based}. 
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public EnhproNB (short[] signal1, short[] signal2)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public EnhproNB(short[] signal1, short[] signal2, int Freq, int Lframe, int Ltransf)}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public void & \textbf{preProcessing()}\\
+&Convierte las señales en el dominio del tiempo al dominio de la frecuencia.\\
+\hline
+public void & \textbf{postProcessing(Complex[][] Xf)}\\
+&Convierte la señal en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+public int & \textbf{getFs()}\\
+&Devuelve la frecuencia de muestreo.\\
+\hline
+public int & \textbf{getM()}\\
+&Devuelve el número de muestras para la FFT.\\
+\hline
+private static Complex[] & \textbf{obtCol(Complex[][] mat, int index)}\\
+&Devuelve una columna de la matriz \emph{mat}.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private double[] & \textbf{x1}\\
+&Señal del primer canal asociada al objeto.\\
+\hline
+private Complex[] & \textbf{x2}\\
+&Señal del segundo canal asociada al objeto.\\
+\hline
+private int & \textbf{L}\\
+&Longitud de trama en el dominio del tiempo. Por defecto 160.\\
+\hline
+private int & \textbf{Os}\\
+&Longitud de solapamiento (la mitad de la longitud de trama). Por defecto 80.\\
+\hline
+private int & \textbf{Fs}\\
+&Frecuencia de muestreo. Por defecto 8000.\\
+\hline
+private int & \textbf{M}\\
+&Número de muestras para la FFT. Por defecto 256.\\
+\hline
+private double & \textbf{a0}\\
+&Parámetro para la ventana de Hann. Por defecto 0.5.\\
+\hline
+private double & \textbf{a1}\\
+&Parámetro para la ventana de Hann. Por defecto 0.5\\
+\hline
+Complex[] & \textbf{Xf1}\\
+&Conversión al dominio de la frecuencia de la señal del micrófono primario.\\
+\hline
+Complex[] & \textbf{Xf2}\\
+&Conversión al dominio de la frecuencia de la señal del micrófono secundario.\\
+\hline
+Complex[] & \textbf{Xcomplex}\\
+&Señal reconstruida.\\
+\hline
+short[] & \textbf{Xrec}\\
+&Señal reconstruida, con codificación PCM.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public EnhproNB (short[] signal1, short[] signal2)}\\
+Crea un nuevo objeto EnhproNB con parámetros por defecto, asociado a las señales dadas.\\
+\hline
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public EnhproNB(short[] signal1, short[] signal2, int Freq, int Lframe, int Ltransf) throws InvalidFrequencyException, InvalidParametersException}\\
+\hline
+Crea un nuevo objeto EnhproNB con los valores dados para los campos,  asociado a las señales dadas. El resto de campos tienen los valores por defecto.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void preProcessing()}\\
+\hline
+Convierte las señales en el dominio del tiempo al dominio de la frecuencia, con enventanado y solapamiento del 50\%.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void postProcessing(Complex[][] Xf)}\\
+\hline
+Convierte la señal dada en el dominio de la frecuencia al dominio del tiempo, aplicando el método Overlap-Add.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Xf:} señal en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public int getFs ()}\\
+\hline
+Obtiene la frecuencia de muestreo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el campo entero Fs.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public int getM ()}\\
+\hline
+Obtiene el número de muestras para la FFT.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el campo entero M.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private static Complex[] obtCol (Complex[][] mat, int index)}\\
+\hline
+Obtiene la columna de índice dado de la matriz \emph{mat}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{mat:} una matriz de complejos.\\
+\emph{index:} el índice de la columna a extraer.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un vector con la columna de índice dado.\\
+\hline
+\end{longtable}
+
+\subsection{NoiseReductionNB}
+ 
+speech.common.NoiseReductionNB $>>>$ public abstract class NoiseReductionNB extends java.lang.Object
+
+\subsubsection*{Subclases Directas}
+
+FilteringNB
+
+PowerLevelNB
+
+\subsubsection*{Visión General}
+
+NoiseReductionNB es la superclase abstracta que agrupa todos los tipos de algoritmos que trabajan en el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{NoiseReductionFB (short[] x1, short[] x2)}\\
+Constructor por defecto.\\
+\hline
+\textbf{NoiseReductionFB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing()}\\
+&Realiza el pre-procesamiento de las señales.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+EnhproNB & \textbf{freq\_time}\\
+&Objeto de la clase EnhproNB para procesamiento.\\
+\hline
+Complex[][] & \textbf{Xf}\\
+&Señal procesada en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{NoiseReductionNB (short[] x1, short[] x2)}\\
+\hline
+Crea un nuevo objeto NoiseReductionNB que inicializa el objeto EnhproNB.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del micrófono primario.\\
+\emph{x2:} señal del micrófono secundario.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{NoiseReductionNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto NoiseReductionNB que inicializa un nuevo objeto EnhproNB con los parámetros dados.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing()}\\
+\hline
+Llama al método de pre-procesamiento de la clase EnhproNB para convertir las señales al dominio de la frecuencia. Inicializa la señal procesada Xf.\\
+\hline
+\end{longtable}
+
+\subsection{FilteringNB}
+
+speech.common.FilteringNB $>>>$ public abstract class FilteringNB extends NoiseReductionNB
+
+\subsubsection*{Subclases Directas}
+
+MVDRNB
+
+MVDRdNB
+
+\subsubsection*{Visión General}
+
+FilteringNB es la superclase abstracta que agrupa los algoritmos basados en el filtrado de las señales entrantes que trabajan en el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{FilteringNB (short[] x1, short[] x2)}\\
+Constructor por defecto.\\
+\hline
+\textbf{FilteringNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing()}\\
+&Realiza el pre-procesamiento de las señales.\\
+\hline
+short[] & \textbf{obtainXrec()}\\
+&Convierte la señal en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+public void & \textbf{changeAtFactor(double[][] newAt)}\\
+&Cambia el factor de atenuación entre los micrófonos.\\
+\hline
+public void & \textbf{changeDel(double newDel)}\\
+&Cambia el retardo entre los micrófonos.\\
+\hline
+void & \textbf{meanCorr(double[] v1, double v2[])}\\
+&Devuelve la media de la correlación entre los vectores.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+double[][] & \textbf{at}\\
+&Factor de atenuación en magnitud entre micrófonos, para cada intervalo de frecuencia. Por defecto: \label{attabla}.\\
+\hline
+private double & \textbf{del}\\
+&Retardo entre micrófonos, en muestras. Por defecto: 2.2745 muestras.\\
+\hline
+Complex[] & \textbf{d}\\
+&Estimación del \emph{steering vector}.\\
+\hline
+final double[] & \textbf{f}\\
+&Vector de frecuencias para cada intervalo.\\
+\hline
+Complex[] & \textbf{w}\\
+&Vector de pesos.\\
+\hline
+private double[][] & \textbf{phases}\\
+&Fases de la señal del canal primario.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{FilteringNB (short[] x1, short[] x2)}\\
+\hline
+Crea un nuevo objeto FilteringNB asociado a las señales. Inicializa las dimensiones de los vectores y los valores del \emph{steering vector} y el vector de frecuencias.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{FilteringNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto FilteringNB con parámetros definidos por el usuario, asociado a las señales. Inicializa las dimensiones de los vectores y los valores del \emph{steering vector} y el vector de frecuencias.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing()}\\
+\hline
+Llama al método de la superclase del mismo nombre e inicializa las dimensiones del vector de fases.\\
+\textbf{\textcolor{gray45}{Sobrescribe:}}\\
+el método initProcessing de la clase NoiseReductionNB.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{short[] obtainXrec()}\\
+\hline
+Añade las fases del primer canal a la señal reconstruida en el dominio de la frecuencia. Obtiene la señal de vuelta en el dominio del tiempo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una señal con precisión \emph{short} en el dominio del tiempo.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void changeAt(double[][] newAt)}\\
+\hline
+Cambia el factor de atenuación entre micrófonos por uno nuevo. Éste debe tener un tamaño de $[\frac{M}{2}+1][2]$, siendo M el tamaño de la FFT.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{newAt:} el nuevo factor de atenuación.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public void changeDel(double newDel)}\\
+\hline
+Cambia el retardo entre micrófonos por uno nuevo.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{newDel:} el nuevo retardo en muestras.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{double meanCorr(double[] v1, double[] v2)}\\
+\hline
+Calcula la media de la correlación entre las muestras de los vectores v1 y v2.\\
+\textbf{\textcolor{gray45}{Parameters:}}\\
+\emph{v1:} el primer vector.\\
+\emph{v2:} el segundo vector.\\
+\hline
+\end{longtable}
+
+
+\subsection{PowerLevelNB}
+
+speech.common.PowerLevelNB $>>>$ public abstract class PowerLevelNB extends NoiseReductionNB
+
+\subsubsection*{Subclases Directas}
+
+PLDNB
+
+SigmoidNB
+
+\subsubsection*{Visión General}
+
+PowerLevelNB es la superclase abstracta que agrupa los algoritmos basados en las diferencias de nivel de potencia entre las señales del micrófono dual, que trabajan en el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{PowerLevelNB (short[] x1, short[] x2, boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{PowerLevelNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+void & \textbf{initProcessing()}\\
+&Realiza el pre-procesamiento de las señales.\\
+\hline
+short[] & \textbf{obtainXrec()}\\
+&Convierte la señal en el dominio de la frecuencia al dominio del tiempo.\\
+\hline
+private void & \textbf{rec(double[][] Gan, Complex[][] Sfreq)}\\
+&Aplica la ganancia espectral a la señal en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+final double & \textbf{a1}\\
+&\emph{Forgetting factor} para el cálculo de las PSD. Por defecto 0.9.\\
+\hline
+final boolean & \textbf{WN}\\
+&Indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}). Por defecto \emph{false}.\\
+\hline
+double[][] & \textbf{PSD1}\\
+&Densidad de Potencia Espectral del primer canal.\\
+\hline
+double[][] & \textbf{PSD2}\\
+&Densidad de Potencia Espectral del primer canal.\\
+\hline
+double[][] & \textbf{G}\\
+&Ganancia espectral.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{PowerLevelNB (short[] x1, short[] x2, boolean noise)}\\
+\hline
+Crea un nuevo objeto PowerLevelNB asociado a las señales. Inicializa las dimensiones de los vectores y los valores de los campos por defecto.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer canal.\\
+\emph{x2:} señal del segundo canal.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{PowerLevelNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf)}\\
+\hline
+Crea un nuevo objeto PowerLevelNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores de los campos por defecto.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{void initProcessing()}\\
+\hline
+Llama al método de la superclase del mismo nombre e inicializa el las dimensiones del vector de ganancias espectrales.\\
+\textbf{\textcolor{gray45}{Sobrescribe:}}\\
+el método initProcessing de la clase NoiseReductionNB.
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} trama de señal del micrófono primario.\\
+\emph{x2:} trama de señal del micrófono secundario.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{short[] obtainXrec()}\\
+\hline
+Reconstruye la señal a partir de la ganancia espectral en el dominio de la frecuencia. Obtiene la señal de vuelta en el dominio del tiempo.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una trama en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private void rec(double[][] Gan, Complex[][] Sfreq)}\\
+\hline
+Aplica la ganancia espectral a la señal en el dominio de la frecuencia, a través del producto en los intervalos de frecuencia.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{Gan:} ganancia espectral.\\
+\emph{Sfreq:} señal en el dominio de la frecuencia.\\
+\hline
+\end{longtable}
+
+\subsection{MVDRNB}
+
+speech.common.MVDRNB $>>>$ public class MVDRNB extends FilteringNB
+
+\subsubsection*{Visión General}
+
+MVDRNB es la clase que implementa el algoritmo MVDR sin tener en cuenta el retardo entre canales, para el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public MVDRNB (short[] x1, short[] x2)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public MVDRNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransform)}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing() throws ArithmeticException}\\
+&Realiza el procesamiento de las señales de acuerdo con el algoritmo MVDR sin retardo.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private double & \textbf{N1}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double & \textbf{N2}\\
+&Vector de muestras de ruido para el segundo canal.\\
+\hline
+private double[][] & \textbf{R}\\
+&Matriz de correlaciones de ruido.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
+\hline
+freq\_time, Xf, at, d, f, w\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.FilteringNB: }\\
+\hline
+at, d, f, w\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRFB (short[] x1, short[] x2)}\\
+\hline
+Crea un nuevo objeto MVDRFB asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer canal.\\
+\emph{x2:} señal del segundo canal.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRFB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto MVDRFB con parámetros definidos por el usuario asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer canal.\\
+\emph{x2:} señal del segundo canal.\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing() throws ArithmeticException}\\
+\hline
+Aplica el algoritmo MVDR sin retardo entre canales, a las señales.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una señal en el dominio del tiempo, en formato entero \emph{short}.
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{Arithmetic Exception:} ver el método división de la clase Complex.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.FilteringNB: }\\
+\hline
+initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
+\hline
+\end{longtable}
+
+\subsection{MVDRdNB}
+
+speech.common.MVDRdNB $>>>$ public class MVDRdNB extends FilteringNB
+
+\subsubsection*{Visión General}
+
+MVDRdNB es la clase que implementa el algoritmo MVDR con retardo entre micrófonos, para el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public MVDRdNB (short[] x1, short[] x2)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public MVDRdNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing() throws ArithmeticException}\\
+&Realiza el procesamiento de las señales de acuerdo con el algoritmo MVDR, con retardo.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private double & \textbf{N1}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double & \textbf{N2}\\
+&Vector de muestras de ruido para el primer canal.\\
+\hline
+private double[][] & \textbf{R}\\
+&Matriz de correlaciones de ruido.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.FilteringNB: }\\
+\hline
+at, d, f, w\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRdNB (short[] x1, short[] x2)}\\
+\hline
+Crea un nuevo objeto MVDRdNB asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public MVDRdNB (short[] x1, short[] x2)}\\
+\hline
+Crea un nuevo objeto MVDRNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing() throws ArithmeticException}\\
+\hline
+Aplica el algoritmo MVDR a las señales teniendo en cuenta el retardo entre micrófonos.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+una señal en el dominio del tiempo, en formato entero \emph{short}.
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{Arithmetic Exception:} ver método division de la clase Complex.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.FilteringFB: }\\
+\hline
+initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
+\hline
+\end{longtable}
+
+\subsection{PLDFB}
+
+speech.common.PLDNB $>>>$ public class PLDNB extends PowerLevelNB
+
+\subsubsection*{Visión General}
+
+PLDNB es la clase que implementa el algoritmo PLD (\emph{Power Level Differences}), para el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public PLDNB (short[] x1, short[] x2, boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public PLDFB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing()}\\
+&Realiza el procesamiento de las señales de acuerdo con el algoritmo PLD.\\
+\hline
+private double & \textbf{sinc (double x))}\\
+&Devuelve la función \emph{sinc} de argumento \emph{x}.\\
+\hline
+private double & \textbf{max (double n1, double n2))}\\
+&Devuelve el valor máximo de los dos argumentos.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{a2}\\
+&\emph{Forgetting factor} para la actualización de la PSD del ruido en el caso de sólo ruido. Por defecto 0.9.\\
+\hline
+private final double & \textbf{a3}\\
+&\emph{Forgetting factor} para la actualización de la PSD del ruido si hay presencia de voz y ruido. Por defecto 0.8.\\
+\hline
+private final double & \textbf{minth}\\
+&Umbral PLDNE mínimo para la distinción de sólo ruido. Por defecto 0.2.\\
+\hline
+private final double & \textbf{maxth}\\
+&Umbral PLDNE máximo para la distinción de sólo voz. Por defecto 0.8.\\
+\hline
+private final double & \textbf{dmic}\\
+&Distancia entre micrófonos. Por defecto 0.1 m.\\
+\hline
+private final double & \textbf{c}\\
+&Velocidad del sonido. Por defecto $340 \frac{m}{s}$.\\
+\hline
+private final double & \textbf{gamma}\\
+&Factor de sobrestimación de ruido. Por defecto 4.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.PowerLevelNB: }\\
+\hline
+WN, a1, PSD1, PSD2, G\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public PLDNB (short[] x1, short[] x2, boolean noise)}\\
+\hline
+Crea un nuevo objeto PLDNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores de los campos por defecto. La reducción de ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public PLDNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto PLDNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores de los campos por defecto.La reducción de ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\emph{d:} distancia entre micrófonos definida por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing()}\\
+\hline
+Aplica el algoritmo PLD a las señales. El uso de la reducción de ruido depende del parámetro del constructor.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+la señal en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private double sinc (double x)}\\
+\hline
+Obtiene el valor de la función \emph{sinc} normalizada para el argumento \emph{x}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x:} valor del que obtener la función \emph{sinc}.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+un valor de doble precisión, entre -1 y 1.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{private double max (double n1, double n2)}\\
+\hline
+Obtiene el valor máximo entre los dos argumentos.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{n1:} primer valor.\\
+\emph{n2:} segundo valor.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+el máximo valor de los dos dados.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+initProcessing, obtainXrec\\
+\hline
+\end{longtable}
+
+\subsection{SigmoidNB}
+
+speech.common.SigmoidNB $>>>$ public class SigmoidNB extends PowerLevelNB
+
+\subsubsection*{Visión General}
+
+SigmoidNB es la clase que implementa el algoritmo PLR (\emph{Power Level Ratio}) basado en la función sigmoide, para el modo de operación \emph{note-based}.
+
+\subsubsection*{Resumen de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Constructor y Descripción}\\
+\hline
+\textbf{public SigmoidNB (short[] x1, short[] x2, boolean noise)}\\
+Constructor por defecto.\\
+\hline
+\textbf{public SigmoidNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+Constructor con parámetros definidos por el usuario.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Resumen de Métodos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Método y Descripción}\\
+\hline
+public short[] & \textbf{processing()}\\
+&Realiza el procesamiento de las señales de acuerdo al algoritmo PLR.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Campos}
+
+\begin{longtable}{|p{4cm}|p{8cm}|}
+\hline
+\textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
+\hline
+private final double & \textbf{a}\\
+&Pendiente de la función sigmoide. Por defecto 2.\\
+\hline
+private final double & \textbf{c}\\
+&Media de la función sigmoide. Por defecto 1.9.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
+\hline
+freq\_time, Xf\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Campos heredados de speech.frame.PowerLevelNB: }\\
+\hline
+WN, a1, PSD1, PSD2, G\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Constructores}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public SigmoidNB (short[] x1, short[] x2, boolean noise)}\\
+\hline
+Crea un nuevo objeto SigmoidNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores de los campos por defecto.La reducción de ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public SigmoidNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\hline
+Crea un nuevo objeto SigmoidNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores y los valores de los campos por defecto.La reducción de ruido musical depende del valor del parámetro \emph{noise}.\\
+\textbf{\textcolor{gray45}{Parámetros:}}\\
+\emph{x1:} señal del primer micrófono.\\
+\emph{x2:} señal del segundo micrófono.\\
+\emph{noise:} indica si se aplica reducción del ruido musical (\emph{true}) o no (\emph{false}).\\
+\emph{Freq:} frecuencia de muestreo definida por el usuario.\\
+\emph{Lframe:} longitud de la trama definida por el usuario.\\
+\emph{Ltransf:} número de muestras para la FFT definidas por el usuario.\\
+\textbf{\textcolor{gray45}{Lanza:}}\\
+\emph{InvalidFrequencyException:} si la frecuencia es distinta de 8000, 16000, 44100.\\
+\emph{InvalidParametersException:} si la longitud de la trama es mayor que el número de muestras para la FFT.\\
+\hline
+\end{longtable}
+
+\subsubsection*{Especificación de Métodos}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{public short[] processing()}\\
+\hline
+Aplica el algoritmo PLR usando la función sigmoide a las señales. El uso de la reducción del ruido musical depende del parámetro del constructor.\\
+\textbf{\textcolor{gray45}{Devuelve:}}\\
+la señal en el dominio del tiempo, en formato entero \emph{short}.\\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{12cm}|}
+\hline
+\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\hline
+initProcessing, obtainXrec\\
+\hline
+\end{longtable}
+
+\section{Ejemplos de Uso}
+
+\subsection{Consideraciones generales.}
+
+El manejo de la API, a pesar de su sencillez, plantea varias cuestiones a considerar. Esta sección describe los problemas generales comunes a ambos modos de operación. En las secciones posteriores se tratan los aspectos específicos de cada uno de los modos de operación.
+
+Las líneas generales a tener en cuenta en el uso de la API en cualquier modo son:
+
+\begin{itemize}
+\item Los algoritmos reciben señales tipo \emph{short[]} como entradas y devuelven una señal \emph{short[]} como salida, esto es, señales codificadas en PCM con 16 bits.
+\item Si se especifica la frecuencia de muestreo ($F_s$), su valor debe ser compatible con el dispositivo. Los teléfonos Android suelen usar frecuencias de 8000, 16000 o 44100 Hz. La API sólo permite estos valores, para prevenir errores en la grabación de las señales. Si el usuario trata de introducir otro valor, se lanzará una excepción de tipo \emph{InvalidFrequencyException}.
+\item El número de muestras para la FFT ($M$) debe ser potencia de 2 (valores típicos son 256, 512,...). EL valor por defecto es 256. Si el usuario trata de introducir un valor que no es potencia de 2, se lanzará una excepción de tipo \emph{RuntimeException}.
+\item Si se especifican la longitud de la trama y el número de muestras para la FFT ($M$), el primer valor debe ser menor que el segundo. En otro caso, se lanzará una excepción de tipo \emph{InvalidParametersException}.
+\item Para el caso del algoritmo MVDR en cualquiera de sus versiones, la estimación del ruido se realiza a partir de las primeras 30 tramas en el caso del modo de operación \emph{frame-based} y a partir de las primeras y últimas 20 tramas para el modo de operación \emph{note-based}. Así, lo adecuado es que la longitud de la nota de voz sea superior a 0.5s - 1s para la obtención de buenos resultados o que el número de tramas supere ampliamente las 30 en el caso del modo de operación basado en tramas.
+\end{itemize}
+
+\subsection{Modo de operación \emph{frame-based}.}
+
+Los pasos para procesar una señal con uno de los algoritmos en el modo de operación \emph{frame-based} son:
+
+\begin{enumerate}
+\item Crear el objeto que implementa el algoritmo elegido y guarda el estado del proceso, como sigue:
+
+\begin{shaded}
+[MVDRFB|MVDRdFB|PLDFB|SigmoidFB] object = new [MVDRFB|MVDRdFB|PLDFB|SigmoidFB] (parameters);
+\end{shaded}
+
+Ejemplos:
+
+\begin{itemize}
+\item Inicialización de un objeto para el algoritmo PLD, con parámetros por defecto y reducción del ruido musical:
+
+\begin{shaded}
+\begin{center}
+PLDFB object = new PLDFB (true);
+\end{center}
+\end{shaded}
+
+\item Inicialización de un objeto para el algoritmo MVDR, con parámetros definidos por el usuario ($F_s=16000, L=320, M=512$):
+
+\begin{shaded}
+\begin{center}
+MVDRFB object = new MVDRFB (16000,320,512);
+\end{center}
+\end{shaded}
+
+\end{itemize}
+
+\item Procesar las tramas de señal indicando que no son la última a tratar:
+
+\begin{shaded}
+\begin{center}
+outputFrame = object.processing (frame1, frame2, false);
+\end{center}
+\end{shaded}
+
+\item Procesar la última trama:
+
+\begin{shaded}
+\begin{center}
+outputFrame = object.processing (frame1, frame2, true);
+\end{center}
+\end{shaded}
+
+\end{enumerate}
+
+\textbf{Nota:} la longitud de la trama para la señal de salida no es siempre la misma debido al método \emph{Overlap-Add}. Difiere para la primera y la última de las tramas. 
+
+\begin{itemize}
+\item Primera trama: $\frac{L}{2}$ muestras.
+\item Tramas intermedias: L muestras.
+\item Última trama: $L+\frac{L}{2}$ muestras.
+\end {itemize}
+
+\subsection{Modo de operación \emph{note-based}.}
+
+El modo de operación \emph{note-based} es mucho más simple. Los pasos para procesar una señal en este modo son:
+
+\begin{enumerate}
+\item Crear el objeto que implementa el algoritmo elegido asociado a las señales, como sigue: 
+
+\begin{shaded}
+[MVDRNB|MVDRdNB|PLDNB|SigmoidNB] object = new [MVDRNB|MVDRdNB|PLDNB|SigmoidNB] (signal1, signal2, parameters);
+\end{shaded}
+
+Ejemplos:
+
+\begin{itemize}
+\item Inicialización de un objeto para el algoritmo PLD, con parámetros por defecto y reducción del ruido musical:
+
+\begin{shaded}
+\begin{center}
+PLDNB object = new PLDNB (signal1, signal2, true);
+\end{center}
+\end{shaded}
+
+\item Inicialización de un objeto para el algoritmo MVDR, con parámetros definidos por el usuario ($F_s=16000, L=320, M=512$):
+
+\begin{shaded}
+\begin{center}
+MVDRNB object = new MVDRNB (signal1, signal2, 16000,320,512);
+\end{center}
+\end{shaded}
+
+\end{itemize}
+
+\item Procesar la señal completa:
+
+\begin{shaded}
+\begin{center}
+outputSignal = object.processing ();
+\end{center}
+\end{shaded}
+
+\end{enumerate}
+
+\subsection{Algoritmos basados en filtrado. Cambio del factor de atenuación y retardo.}
+
+Si se desea usar otro factor de atenuación o retardo, se pueden modificar por medio de los métodos estáticos de las clases abstractas FilteringFB o FilteringNB, como se muestra a continuación. Los cambio se deben hacer por medio de las clases Filtering (aunque las clases MVDR heredan dichos métodos). De esta manera, los cambios se hacen antes de la inicialización de los objetos, y para todos los algoritmos. 
+
+\begin{itemize}
+\item Para cambiar el retardo entre canales:
+
+\begin{shaded}
+\begin{center}
+[FilteringFB|Filtering NB].changeDel (newDel);
+\end{center}
+\end{shaded}
+
+Donde newDel es un flotante de doble precisión que indica el número de muestras de retardo.
+
+\item Para cambiar el factor de atenuación entre micrófonos:
+
+\begin{shaded}
+\begin{center}
+[FilteringFB|FilteringNB].changeAt (newAt);
+\end{center}
+\end{shaded}
+
+Donde newAt es un vector de flotantes de doble precisión que indica el factor de atenuación en magnitud para cada intervalo de frecuencias. Debe tener $\frac{M}{2}+1$ filas y 2 columnas, la primera de las cuales es todo unos.
+
+\end{itemize}
+
+\subsection{Algoritmo PLD. Cambio de la distancia entre micrófonos.}
+
+Si se desean usar otras dimensiones entre micrófonos, éstas se pueden cambiar a través del constructor de la clase PLD como sigue:
+
+\begin{itemize}
+\item En el modo de operación \emph{frame-based}, con frecuencia de muestreo y longitudes de trama (en el dominio del tiempo y para la FFT) por defecto:
+\begin{shaded}
+\begin{center}
+PLDFB object = new PLDFB(false,8000,160,256,newD);
+\end{center}
+\end{shaded}
+
+\item En el modo de operación \emph{note-based}, con frecuencia de muestreo y longitudes de trama (en el dominio del tiempo y para la FFT) por defecto:
+\begin{shaded}
+\begin{center}
+PLDNB object = new PLDNB(x1,x2,false,8000,160,256,newD);
+\end{center}
+\end{shaded}
+\end{itemize} 
+
+Donde newD es un flotante de doble precisión que indica la distancia entre micrófonos en metros.
+
+\section{Manejo de la librería nativa.}
+
+Al igual que la implementación Java, de poca utilidad en el contexto del uso por parte de un teléfono móvil, se ha realizado una implementación en código nativo que consigue mejores resultados, llegando incluso a la posibilidad del funcionamiento en tiempo real con el dispositivo adecuado. 
+
+Para la librería que se ha generado se aconseja el funcionamiento en modo \emph{frame-based}, ya que su rendimiento es más alto que para el modo \emph{note-based}, aunque sea más complejo de tratar. Esto se debe a que el manejo de vectores de gran longitud con JNI y su intercambio entre Java y C++ es más costoso. Además, de momento sólo se incluye la implementación con parámetros por defecto, pero posteriormente se ampliará dicho soporte a los métodos con parámetros definidos por el usuario.
+
+Se suministra la librería compartida noiseReduXtion en sus versiones en código nativo para las siguientes arquitecturas: \emph{ARM-64}, \emph{Armeabi}, \emph{Armeabi-v7a}, \emph{Mips}, \emph{Mips-64}, \emph{x86} y \emph{x86-64}. También se suministran las clases Java con los métodos nativos, para su uso en cualquier aplicación.
+
+\subsection{Modo de operación \emph{note-based}.}
+
+Los pasos a seguir para el procesamiento de una señal mediante la librería nativa en el modo de operación \emph{note-based}, con el entorno de desarrollo Android Studio son:
+
+\begin{enumerate}
+\item Incluir la librería para nuestra arquitectura en el proyecto de nuestra aplicación. El \emph{path} debe ser el siguiente (por defecto), aunque se puede modificar a través de los ficheros \emph{gradle} de Android Studio:
+
+{\centering \emph{app/src/main/jniLibs/arquitectura \ \ \ \ con}}\\
+{\centering \emph{arquitectura=[arm64-v8a|armeabi|armeabi-v7a|mips|}}\\
+{\centering \emph{mips64|x86|x86\_64]}}
+
+\item Cargar la librería en la actividad donde se vaya a utilizar, mediante:
+\begin{shaded}
+static \{\\
+        System.loadLibrary("noiseReduXtion");\\
+\}
+\end{shaded}
+\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \emph{MVDRNBNat}) en nuestro proyecto.
+
+\item En el código, llamar al método que implementa el algoritmo elegido con las señales a tratar (de tipo \emph{short[]}) y su longitud (tipo \emph{int}) como parámetros; y almacenar el resultado en un \emph{array} tipo \emph{short[]}:
+
+\begin{shaded}
+\begin{center}
+resultado=[MVDRNBNat.MVDRNB|MVDRdNBNat.MVDRdNB|\\
+PLDNBNat.PLDNB|SigmoidNBNat.SigmoidNB] (parámetros);
+\end{center}
+\end{shaded}
+
+Ejemplo:
+
+Inicialización de un objeto para el algoritmo PLD, con reducción del ruido musical.
+
+\begin{shaded}
+\begin{center}
+resultado = PLDFBNat.PLDFB (signal1, signal2, longitud, true);
+\end{center}
+\end{shaded}
+
+\end{enumerate}
+
+
+\subsection{Modo de operación \emph{frame-based}.}
+
+Los pasos para procesar una señal con uno de los algoritmos nativos en el modo de operación \emph{frame-based} son muy similares al caso anterior. Con el entorno Android Studio:
+
+\begin{enumerate}
+\item Incluir la librería para nuestra arquitectura en el proyecto de nuestra aplicación. El \emph{path} debe ser el siguiente (por defecto), aunque se puede modificar a través de los ficheros \emph{gradle} de Android Studio:
+
+{\centering \emph{app/src/main/jniLibs/arquitectura \ \ \ \ con}}\\
+{\centering \emph{arquitectura=[arm64-v8a|armeabi|armeabi-v7a|mips|}}\\
+{\centering \emph{mips64|x86|x86\_64]}}
+
+\item Cargar la librería en la actividad donde se vaya a utilizar, mediante:
+\begin{shaded}
+static \{\\
+        System.loadLibrary("noiseReduXtion");\\
+\}
+\end{shaded}
+\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \emph{MVDRFBNat}) en nuestro proyecto.
+
+\item En el código, crear el objeto que implementa el algoritmo elegido y guarda el estado del proceso, a partir:
+
+\begin{shaded}
+\begin{center}
+[MVDRFBNat.MVDRFB|MVDRdFBNat.MVDRdFB|\\
+PLDFBNat.PLDFB|SigmoidFBNat.SigmoidFB] (parámetros);
+\end{center}
+\end{shaded}
+
+Ejemplo:
+
+Inicialización de un objeto para el algoritmo PLD, con reducción del ruido musical.
+
+\begin{shaded}
+\begin{center}
+PLDFBNat.PLDFB (true);
+\end{center}
+\end{shaded}
+
+\item Procesar la primera trama de señal, que devolverá un vector \emph{short[]} de tamaño $\frac{L}{2}$ muestras.
+
+Ejemplo:
+
+\begin{shaded}
+\begin{center}
+outputFrame = PLDFBNat.processing (frame1, frame2, 0);
+\end{center}
+\end{shaded}
+
+\item Procesar las tramas intermedias, cuyo resultado es una trama de $L$ muestras.
+
+\begin{shaded}
+\begin{center}
+outputFrame = PLDFBNat.processing (frame1, frame2, 2);
+\end{center}
+\end{shaded}
+
+\item Procesar la última trama de señal cuyo resultado es una trama de $L+\frac{L}{2}$ muestras.
+
+\begin{shaded}
+\begin{center}
+outputFrame = PLDFBNat.processing (frame1, frame2, 1);
+\end{center}
+\end{shaded}
+
+
+\end{enumerate}
+
+\textbf{Nota:} en lugar de utilizar una variable booleana como en el caso Java, se ha de utilizar una variable entera para expresar el tipo de cada trama (0 para la primera trama, 1 para la última y cualquier otro entero para el resto de tramas). Esto es así porque JNI debe conocer de antemano la longitud de la trama resultante del método de procesamiento, que devuelve un puntero a un vector.
+
+\newpage
+\section{Factor de atenuación estimado para los algoritmos basados en filtrado.} \label{attabla}
+
+El factor de atenuación, en magnitud, es:
+
+\begin{longtable}{|p{3cm}|p{4cm}|}
+\hline
+\centering
+\textbf{\begin{center}Intervalo de frecuencia\end{center}} & \textbf{\begin{center}Vector de atenuaciones\end{center}}\\
+\hline
+\centering
+1 & 1.0, 0.166666666666667\\
+\hline
+\centering
+2 & 1.0, 0.167208993350234\\
+\hline
+\centering
+3 & 1.0, 0.170915964320394\\
+\hline
+\centering
+4 & 1.0, 0.184029770176026\\
+\hline
+\centering
+5 & 1.0, 0.197560544228307\\
+\hline
+\centering
+6 & 1.0, 0.190840527999757\\
+\hline
+\centering
+7 & 1.0, 0.192047432177809\\
+\hline
+\centering
+8 & 1.0, 0.183834725979586\\
+\hline
+\centering
+9 & 1.0, 0.167650080266274\\
+\hline
+\centering
+10 & 1.0, 0.150981806627262\\
+\hline
+\centering
+11 & 1.0, 0.153266878253944\\
+\hline
+\centering
+12 & 1.0, 0.166268180535902\\
+\hline
+\centering
+13 & 1.0, 0.162614438565990\\
+\hline
+\centering
+14 & 1.0, 0.153961663383010\\
+\hline
+\centering
+15 & 1.0, 0.159909494794623\\
+\hline
+\centering
+16 & 1.0, 0.172945154929599\\
+\hline
+\centering
+17 & 1.0, 0.183481793364247\\
+\hline
+\centering
+18 & 1.0, 0.192731193729044\\
+\hline
+\centering
+19 & 1.0, 0.203016661932243\\
+\hline
+\centering
+20 & 1.0, 0.197092159672005\\
+\hline
+\centering
+21 & 1.0, 0.179377461668000\\
+\hline
+\centering
+22 & 1.0, 0.165449102310079\\
+\hline
+\centering
+23 & 1.0, 0.160821557698255\\
+\hline
+\centering
+24 & 1.0, 0.153255514371948\\
+\hline
+\centering
+25 & 1.0, 0.144576168398710\\
+\hline
+\centering
+26 & 1.0, 0.137317154894612\\
+\hline
+\centering
+27 & 1.0, 0.124396598965920\\
+\hline
+\centering
+28 & 1.0, 0.120180549364993\\
+\hline
+\centering
+29 & 1.0, 0.130791931187244\\
+\hline
+\centering
+30 & 1.0, 0.145571778826412\\
+\hline
+\centering
+31 & 1.0, 0.141218906987489\\
+\hline
+\centering
+32 & 1.0, 0.130028627154861\\
+\hline
+\centering
+33 & 1.0, 0.121440927307679\\
+\hline
+\centering
+34 & 1.0, 0.132815375547346\\
+\hline
+\centering
+35 & 1.0, 0.143066947079109\\
+\hline
+\centering
+36 & 1.0, 0.131471825432240\\
+\hline
+\centering
+37 & 1.0, 0.117397440935886\\
+\hline
+\centering
+38 & 1.0, 0.111905263697132\\
+\hline
+\centering
+39 & 1.0, 0.110213016596265\\
+\hline
+\centering
+40 & 1.0, 0.127643885915046\\
+\hline
+\centering
+41 & 1.0, 0.138729644309074\\
+\hline
+\centering
+42 & 1.0, 0.130625208496672\\
+\hline
+\centering
+43 & 1.0, 0.114396727972234\\
+\hline
+\centering
+44 & 1.0, 0.110691210191480\\
+\hline
+\centering
+45 & 1.0, 0.118684178909335\\
+\hline
+\centering
+46 & 1.0, 0.122772233372909\\
+\hline
+\centering
+47 & 1.0, 0.113675240471541\\
+\hline
+\centering
+48 & 1.0, 0.108648074500687\\
+\hline
+\centering
+49 & 1.0, 0.110724755365175\\
+\hline
+\centering
+50 & 1.0, 0.122984352085588\\
+\hline
+\centering
+51 & 1.0, 0.130826843452480\\
+\hline
+\centering
+52 & 1.0, 0.139556180130904\\
+\hline
+\centering
+53 & 1.0, 0.139227974360512\\
+\hline
+\centering
+54 & 1.0, 0.136643615689669\\
+\hline
+\centering
+55 & 1.0, 0.143440655916181\\
+\hline
+\centering
+56 & 1.0, 0.162632621961658\\
+\hline
+\centering
+57 & 1.0, 0.173751752297178\\
+\hline
+\centering
+58 & 1.0, 0.169735515520989\\
+\hline
+\centering
+59 & 1.0, 0.167521819400617\\
+\hline
+\centering
+60 & 1.0, 0.170910309135608\\
+\hline
+\centering
+61 & 1.0, 0.172787976694475\\
+\hline
+\centering
+62 & 1.0, 0.174939638177146\\
+\hline
+\centering
+63 & 1.0, 0.174570230896301\\
+\hline
+\centering
+64 & 1.0, 0.172047231508049\\
+\hline
+\centering
+65 & 1.0, 0.170871531543352\\
+\hline
+\centering
+66 & 1.0, 0.171196561186246\\
+\hline
+\centering
+67 & 1.0, 0.176694714805526\\
+\hline
+\centering
+68 & 1.0, 0.181037533055351\\
+\hline
+\centering
+69 & 1.0, 0.180732402893754\\
+\hline
+\centering
+70 & 1.0, 0.186833350272195\\
+\hline
+\centering
+71 & 1.0, 0.192893980592318\\
+\hline
+\centering
+72 & 1.0, 0.198091186356784\\
+\hline
+\centering
+73 & 1.0, 0.208239907947187\\
+\hline
+\centering
+74 & 1.0, 0.207763558624124\\
+\hline
+\centering
+75 & 1.0, 0.228140288351793\\
+\hline
+\centering
+76 & 1.0, 0.222165164912611\\
+\hline
+\centering
+77 & 1.0, 0.233236867676543\\
+\hline
+\centering
+78 & 1.0, 0.273290432276087\\
+\hline
+\centering
+79 & 1.0, 0.319764138886490\\
+\hline
+\centering
+80 & 1.0, 0.348190484177468\\
+\hline
+\centering
+81 & 1.0, 0.366762202424264\\
+\hline
+\centering
+82 & 1.0, 0.379465510585720\\
+\hline
+\centering
+83 & 1.0, 0.398219236868218\\
+\hline
+\centering
+84 & 1.0, 0.363586491797512\\
+\hline
+\centering
+85 & 1.0, 0.296467242160284\\
+\hline
+\centering
+86 & 1.0, 0.239208606172832\\
+\hline
+\centering
+87 & 1.0, 0.198111295880466\\
+\hline
+\centering
+88 & 1.0, 0.171560274047292\\
+\hline
+\centering
+89 & 1.0, 0.179932911752786\\
+\hline
+\centering
+90 & 1.0, 0.169551281266584\\
+\hline
+\centering
+91 & 1.0, 0.148082907254966\\
+\hline
+\centering
+92 & 1.0, 0.125722490449906\\
+\hline
+\centering
+93 & 1.0, 0.115342201429619\\
+\hline
+\centering
+94 & 1.0, 0.115831738573581\\
+\hline
+\centering
+95 & 1.0, 0.123046748618180\\
+\hline
+\centering
+96 & 1.0, 0.112279124052163\\
+\hline
+\centering
+97 & 1.0, 0.097557477967914\\
+\hline
+\centering
+98 & 1.0, 0.101902063537745\\
+\hline
+\centering
+99 & 1.0, 0.108783040397567\\
+\hline
+\centering
+100 & 1.0, 0.105969731626750\\
+\hline
+\centering
+101 & 1.0, 0.110582462463094\\
+\hline
+\centering
+102 & 1.0, 0.112133654846756\\
+\hline
+\centering
+103 & 1.0, 0.111199004300049\\
+\hline
+\centering
+104 & 1.0, 0.105199375297250\\
+\hline
+\centering
+105 & 1.0, 0.105827808331101\\
+\hline
+\centering
+106 & 1.0, 0.115891487701435\\
+\hline
+\centering
+107 & 1.0, 0.123392112224695\\
+\hline
+\centering
+108 & 1.0, 0.118180342007004\\
+\hline
+\centering
+109 & 1.0, 0.105346550520080\\
+\hline
+\centering
+110 & 1.0, 0.104958382678547\\
+\hline
+\centering
+111 & 1.0, 0.118829559127789\\
+\hline
+\centering
+112 & 1.0, 0.139848501947333\\
+\hline
+\centering
+113 & 1.0, 0.145997498258241\\
+\hline
+\centering
+114 & 1.0, 0.152094009536106\\
+\hline
+\centering
+115 & 1.0, 0.151946623414071\\
+\hline
+\centering
+116 & 1.0, 0.147803356150199\\
+\hline
+\centering
+117 & 1.0, 0.163498578111671\\
+\hline
+\centering
+118 & 1.0, 0.186700500706312\\
+\hline
+\centering
+119 & 1.0, 0.200531281164672\\
+\hline
+\centering
+120 & 1.0, 0.208173632730702\\
+\hline
+\centering
+121 & 1.0, 0.208971812839067\\
+\hline
+\centering
+122 & 1.0, 0.210309300768061\\
+\hline
+\centering
+123 & 1.0, 0.211483452596959\\
+\hline
+\centering
+124 & 1.0, 0.214232636018993\\
+\hline
+\centering
+125 & 1.0, 0.219937003996874\\
+\hline
+\centering
+126 & 1.0, 0.209469799170342\\
+\hline
+\centering
+127 & 1.0, 0.209658373493111\\
+\hline
+\centering
+128 & 1.0, 0.211205851734264\\
+\hline
+\centering
+129 & 1.0, 0.198113207547170\\
+\hline
+\end{longtable}
+
+\textbf{Nota:} los intervalos de frecuencia están uniformemente distribuidos en las frecuencias entre 0 y $\frac{F_s}{2}$. En este caso, se tienen 129 intervalos ya que la longitud para la FFT es de $M=256$ muestras, y sus frecuencias están uniformemente distribuidas en el intervalo entre 0 y 4000 Hz.
+
+
+\section*{Referencias}
+
+\begin{enumerate}
+\item Jeub, Marco, Christian Herglotz, Christoph Nelke, Christophe Beaugeant y Peter Vary: \emph{Noise Reduction for Dual-Microphone Mobile Phones exploiting Power Level Differences}, pages 1693-1696, ICASSP 2012.
+\item Jian, Zhang, Zia Risheng, Fu Zhonghua, Li Jungfeng y Yan Yonghong: \emph{A Fast Two-Microphone Noise Reduction Algorithm based on Power Level Ratio for Mobile Phone}, pages 206-209, ISCSLP 2012.
+\item Esch, Thomas y Peter Vary: \emph{Efficient Musical Noise Suppression for Speech Enhancement Systems}, pages 4409-4412, ICASSP 2009.
+\end{enumerate}
+
+\chapter*{}
+\thispagestyle{empty}
+
+\end{document}
