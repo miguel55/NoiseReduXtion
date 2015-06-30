@@ -13,6 +13,9 @@ Los paquetes frame y note tienen la misma estructura. Se componen de: la clase N
 
 El código se puede incluir en cualquier aplicación de manera separada: o bien los paquetes common y frame si se quieren tratar las señales trama a trama; o bien los paquetes common y note si se quieren tratar señales completas. 
 
+Se incluyen dos aplicaciones de ejemplo, en Java y código nativo (con las librerías correspondientes) para el testeo. Las librerías se pueden incluir en cualquier aplicación.
+
+
 
 ## Description
 This repository will contain the API generated for EOG work called Speech Enhancement for Dual-Microphone Smartphones, and documentation for this one.
@@ -26,3 +29,5 @@ Packages frame and note have the same structure. They have: a NoiseReduction cla
 ## Use
 
 Given code can be included in any application separately: either packages common and frame if you want to process signals frame to frame or packages common and note if you want to process complete signals.
+
+Two examples app are included, one in Java and other in native code (with corresponding libraries) for test. Libraries can be used in any other application.
