@@ -30,4 +30,4 @@ Packages frame and note have the same structure. They have: a NoiseReduction cla
 
 Given code can be included in any application separately: either packages common and frame if you want to process signals frame to frame or packages common and note if you want to process complete signals.
 
-Two examples app are included, one in Java and other in native code (with corresponding libraries) for test. Libraries can be used in any other application.
+Two example apps are included, one in Java and other in native code (with corresponding libraries) for test. Libraries can be used in any other application.
