@@ -1,0 +1,113 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:id="@+id/LinearLayout1"
+    android:orientation="vertical"
+    android:weightSum="1">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="0.65"
+        android:gravity="center_vertical|center_horizontal">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/faseGrab"
+        android:gravity="center"
+        android:id="@+id/txt1"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/estado"
+        android:id="@+id/statustxt"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/opcGrab1"
+        android:id="@+id/button1"
+        android:layout_gravity="center_horizontal"
+        android:onClick="record"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/opcGrab2"
+        android:id="@+id/button2"
+        android:layout_gravity="center_horizontal"
+        android:onClick="stopRecording"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/opcGrab3"
+        android:id="@+id/button3"
+        android:layout_gravity="center_horizontal"
+        android:onClick="play"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/opcGrab4"
+        android:id="@+id/button4"
+        android:layout_gravity="center_horizontal"
+        android:onClick="stopPlaying"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="0.35">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/clean"
+            android:id="@+id/txtclean"
+            android:layout_above="@+id/button5"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical|center_horizontal"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:text="@string/opcGrab5"
+            android:id="@+id/button5"
+            android:layout_above="@+id/button6"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_gravity="center" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:text="@string/opcGrab4"
+            android:id="@+id/button6"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+</LinearLayout>

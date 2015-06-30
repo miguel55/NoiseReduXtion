@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">AppJava</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="faseGrab">Fase de grabación</string>
+    <string name="opcGrab1">EMPEZAR GRABACIÓN</string>
+    <string name="opcGrab2">DETENER GRABACIÓN</string>
+    <string name="opcGrab3">REPRODUCIR SEÑAL RUIDOSA</string>
+    <string name="opcGrab4">DETENER</string>
+    <string name="opcGrab5">REPRODUCIR SEÑAL LIMPIA</string>
+    <string name="estado">Estado</string>
+    <string name="clean">Señal Limpia</string>
+    <string name="alg2">MVDR-MR</string>
+    <string name="alg3">MVDR-M</string>
+    <string name="alg4">PLD</string>
+    <string name="alg5">PLD-SR</string>
+    <string name="alg6">PLR-SIG</string>
+    <string name="alg7">PLR-SIG-SR</string>
+    <string name="cont">¿Continuar?</string>
+    <string name="elige">Elija el algoritmo que desea utilizar</string>
+    <string name="modo">Elija el modo de operación</string>
+    <string name="frame">FRAME_BASED</string>
+    <string name="note">NOTE-BASED</string>
+    <string name="processing">Procesando...</string>
+    <string name="title_activity_procesa">Procesa</string>
+    <string name="title_activity_inicio">AppJava</string>
+    <string name="title_activity_procesa_frame">ProcesaFrame</string>
+
+</resources>
