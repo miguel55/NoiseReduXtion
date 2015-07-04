@@ -9,7 +9,6 @@
 \usepackage{float}
 \usepackage{dcolumn}
 \usepackage{multirow}
-\usepackage{slashbox}
 \usepackage{cite}
 \usepackage{framed, color}
 
@@ -31,10 +30,10 @@
 
 \hypersetup{
 pdfauthor = {Miguel Molina Moreno: miguel21@correo.ugr.es},
-pdftitle = {Noise-ReduXtion API especification},
+pdftitle = {NoiseReduXtion API especification},
 pdfsubject = {},
 pdfkeywords = {noise reduction, smartphones, speech enhancement, Android},
-pdfcreator = {LaTeX con el paquete ....},
+pdfcreator = {LaTeX con el paquete pdfLatex},
 pdfproducer = {pdflatex}
 }
 
@@ -96,11 +95,13 @@ pdfproducer = {pdflatex}
 \pagenumbering{arabic}
 \setlength{\parskip}{5pt}
 
-\chapter{Noise-ReduXtion API especification}
-\section{Description}
-Noise-ReduXtion API provides a series of algorithms for their use with dual-microphone mobile phones, in apps which process speech whose final objective is the user perception, not a speech recognizer. This kind of applications can be the ones that implement calls, work with speech notes,...
+\chapter{NoiseReduXtion API especification}
 
-Noise-ReduXtion algorithms work in frequency domain. Therefore, API includes resources for:
+\section{Description}
+
+NoiseReduXtion API provides a series of algorithms for their use with dual-microphone mobile phones, in apps which process speech whose final objective is the user perception, not a speech recognizer. This kind of applications can be the ones that implement calls, work with speech notes, etc.
+
+NoiseReduXtion algorithms work in frequency domain. Therefore, API includes resources for:
 
 \begin{itemize}
 \item Converting signals from time domain to frequency domain.
@@ -126,11 +127,11 @@ This API can be used with the following purposes:
 
 Regarding suitable mobile position for the sound recording; in principle algorithms belonging to API are been developed for their use in conversational position. However, they can also be applied when the mobile phone is located in front of the mouth, close to it, as acoustic context is similar to conversational position: the primary microphone captures clean speech with much more power than the secondary one. The distance between microphones is around 10 cm. 
 
-In this context, a increase of [2-6] dB in SNR and [0.05-0.25] in PESQ can be obtained with the implementation of suitable algorithms from the API. Specific performance depends on acoustic context, incoming signal SNR, ...
+In this context, a increase of [2-6] dB in SNR and [0.05-0.25] in PESQ can be obtained with the implementation of suitable algorithms from the API. Specific performance depends on acoustic context, incoming signal SNR, etc.
 
 \section{Algorithm Details}
 
-Noise-ReduXtion API gathers some state-of-the-art algorithms that can be used in dual-microphone smartphones in order to improve speech quality towards user perception. Below describes the main characteristics of each algorithm, to facilitate their choice and use by users.
+NoiseReduXtion API gathers some state-of-the-art algorithms that can be used in dual-microphone smartphones in order to improve speech quality towards user perception. Below describes the main characteristics of each algorithm, to facilitate their choice and use by users.
 
 \begin{itemize}
 \item MVDR (\emph{Minimum Variance Distortionless Response}) with delay between microphones. It is the standard implementation of MVDR algorithm, but adapted to its use in mobiles in frequency domain (obtaining attenuation in magnitude for each frequency bin). MVDR algorithm tries to compensate attenuation and delay between microphones through a combination between channels with different weights. Its main advantages are voice naturalness and certain independence of incoming signal SNR. 
@@ -157,11 +158,9 @@ These are the packages present in API:
 \hline
 \textbf{speech.note} & Provides classes for \emph{note-based} operation mode.\\
 \hline
-\textbf{speech.frame} & Provides classes for \emph{frame-based} operation mode.\\
+\textbf{speech.frame}\footnote{Packages speech.note and speech.frame have the same structure, but his usage and method implementation is different.} & Provides classes for \emph{frame-based} operation mode.\\
 \hline
 \end{longtable}
-
-\textbf{Note: }packages speech.note and speech.frame have the same structure, but his usage and method implementation is different.
 
 \section{Class Hierarchy}
 
@@ -219,13 +218,22 @@ The hierarchy tree for each operation mode, with the relationships among classes
 \end{center}
 \end{figure}
 
-Abstract classes are marked in blue and have italic font. Superclasses are marked in blue, and common to all packages classes are marked in black. Purple colour indicates classes which must be used for algorithm implementation. Class Enhpro which implements Overlap-Add method is colored blue.
+Abstract classes are marked in blue and have italic font. Superclasses are marked in blue, and common to all packages classes are marked in black. Purple colour indicates classes which must be used for algorithm implementation. \texttt{Enhpro} class which implements Overlap-Add method is colored blue.
 
-Regarding relationships among classes, inheritance is symbolized by a white arrowhead. An example is given by \emph{Filtering} y \emph{PowerLevel} classes with \emph{NoiseReduction}. A white diamond indicates one or more objects from this class are used by another class (aggregation relationship). 
+Regarding relationships among classes, inheritance is symbolized by a white arrowhead. An example is given by \texttt{Filtering} y \texttt{PowerLevel} classes with \texttt{NoiseReduction}. A white diamond indicates one or more objects from this class are used by another class (aggregation relationship). 
 
 \section{Classes}
 
 \subsection{Complex}
+
+\subsubsection*{Identification}
+
+In this subsection (along the entire document) the package hierarchy preceding every class is included, as well as the entire name for the class, as it follows:
+\begin{shaded}
+\begin{center}
+package1.package2.ClassName $>>>$ Class name with identifiers
+\end{center}
+\end{shaded}
 
 speech.common.Complex $>>>$ public class Complex extends java.lang.Object
 
@@ -512,6 +520,8 @@ a string with the complex number in canonical form.\\
 
 \subsection{FFT}
 
+\subsubsection*{Identification}
+
 speech.common.FFT $>>>$ public abstract class FFT extends java.lang.Object
 
 \subsubsection*{Class Overview}
@@ -585,6 +595,8 @@ a double vector result of the convolution, with number of samples sum of signal1
 \end{longtable}
 
 \subsection{MusFilter}
+
+\subsubsection*{Identification}
 
 speech.common.MusFilter $>>>$ public class MusFilter extends java.lang.Object
 
@@ -676,6 +688,8 @@ a double matrix with modified frame gains.\\
 \end{longtable}
 
 \subsection{EnhproFB}
+
+\subsubsection*{Identification}
 
 speech.common.EnhproFB $>>>$ public class EnhproFB extends java.lang.Object
 
@@ -863,6 +877,8 @@ a vector with the column of given index.\\
 
 \subsection{NoiseReductionFB}
 
+\subsubsection*{Identification}
+
 speech.common.NoiseReductionFB $>>>$ public abstract class NoiseReductionFB extends java.lang.Object
 
 \subsubsection*{Direct Known Subclasses}
@@ -950,6 +966,8 @@ Calls pre-processing EnhproFB class method to convert frames to frequency domain
 \end{longtable}
 
 \subsection{FilteringFB}
+
+\subsubsection*{Identification}
 
 speech.common.FilteringFB $>>>$ public abstract class FilteringFB extends NoiseReductionFB
 
@@ -1121,6 +1139,8 @@ Calculates the mean of correlation between the number of samples of v1 and v2 gi
 
 \subsection{PowerLevelFB}
 
+\subsubsection*{Identification}
+
 speech.common.PowerLevelFB $>>>$ public abstract class PowerLevelFB extends NoiseReductionFB
 
 \subsubsection*{Direct Known Subclasses}
@@ -1260,7 +1280,10 @@ Applies spectral gains to frames in frequency domain, product through frequency 
 \emph{Sfreq:} frames in frequency domain.\\
 \hline
 \end{longtable}
+
 \subsection{MVDRFB}
+
+\subsubsection*{Identification}
 
 speech.common.MVDRFB $>>>$ public class MVDRFB extends FilteringFB
 
@@ -1382,6 +1405,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 
 \subsection{MVDRdFB}
 
+\subsubsection*{Identification}
+
 speech.common.MVDRdFB $>>>$ public class MVDRdFB extends FilteringFB
 
 \subsubsection*{Class Overview}
@@ -1501,6 +1526,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 \end{longtable}
 
 \subsection{PLDFB}
+
+\subsubsection*{Identification}
 
 speech.common.PLDFB $>>>$ public class PLDFB extends PowerLevelFB
 
@@ -1682,6 +1709,8 @@ initProcessing, obtainXrec\\
 
 \subsection{SigmoidFB}
 
+\subsubsection*{Identification}
+
 speech.common.SigmoidFB $>>>$ public class SigmoidFB extends PowerLevelFB
 
 \subsubsection*{Class Overview}
@@ -1796,6 +1825,8 @@ initProcessing, obtainXrec\\
 \end{longtable}
 
 \subsection{EnhproNB}
+
+\subsubsection*{Identification}
 
 speech.common.EnhproNB $>>>$ public class EnhproNB extends java.lang.Object
 
@@ -1969,6 +2000,8 @@ a vector with the column of given index.\\
 
 \subsection{NoiseReductionNB}
 
+\subsubsection*{Identification}
+
 speech.common.NoiseReductionNB $>>>$ public abstract class NoiseReductionNB extends java.lang.Object
 
 \subsubsection*{Direct Known Subclasses}
@@ -1987,10 +2020,10 @@ NoiseReductionNB is the abstract superclass which groups all kinds of algorithms
 \hline
 \textbf{Constructor and Description}\\
 \hline
-\textbf{NoiseReductionFB (short[] x1, short[] x2)}\\
+\textbf{NoiseReductionNB (short[] x1, short[] x2)}\\
 Default constructor.\\
 \hline
-\textbf{NoiseReductionFB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\textbf{NoiseReductionNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
 Constructor with user-defined parameters.\\
 \hline
 \end{longtable}
@@ -2061,6 +2094,8 @@ Calls pre-processing EnhproNB class method to convert signals to frequency domai
 \end{longtable}
 
 \subsection{FilteringNB}
+
+\subsubsection*{Identification}
 
 speech.common.FilteringNB $>>>$ public abstract class FilteringNB extends NoiseReductionNB
 
@@ -2139,7 +2174,7 @@ private double[][] & \textbf{phases}\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Fields inherited from speech.frame.NoiseReductionFB: }\\
+\textbf{Fields inherited from speech.frame.NoiseReductionNB: }\\
 \hline
 freq\_time, Xf\\
 \hline
@@ -2232,6 +2267,8 @@ Calculates the mean of correlation between samples of v1 and v2.\\
 
 
 \subsection{PowerLevelNB}
+
+\subsubsection*{Identification}
 
 speech.common.PowerLevelNB $>>>$ public abstract class PowerLevelNB extends NoiseReductionNB
 
@@ -2377,6 +2414,8 @@ Applies spectral gains to signal in frequency domain, product through frequency 
 
 \subsection{MVDRNB}
 
+\subsubsection*{Identification}
+
 speech.common.MVDRNB $>>>$ public class MVDRNB extends FilteringNB
 
 \subsubsection*{Class Overview}
@@ -2495,6 +2534,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 
 \subsection{MVDRdNB}
 
+\subsubsection*{Identification}
+
 speech.common.MVDRdNB $>>>$ public class MVDRdNB extends FilteringNB
 
 \subsubsection*{Class Overview}
@@ -2605,13 +2646,15 @@ a signal in time domain, in short integer format.
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Methods inherited from speech.frame.FilteringFB: }\\
+\textbf{Methods inherited from speech.frame.FilteringNB: }\\
 \hline
 initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 \hline
 \end{longtable}
 
 \subsection{PLDNB}
+
+\subsubsection*{Identification}
 
 speech.common.PLDNB $>>>$ public class PLDNB extends PowerLevelNB
 
@@ -2775,6 +2818,8 @@ initProcessing, obtainXrec\\
 
 \subsection{SigmoidNB}
 
+\subsubsection*{Identification}
+
 speech.common.SigmoidNB $>>>$ public class SigmoidNB extends PowerLevelNB
 
 \subsubsection*{Class Overview}
@@ -2883,25 +2928,25 @@ signal in time domain, in short integer format.\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Methods inherited from speech.frame.PowerLevelFB: }\\
+\textbf{Methods inherited from speech.frame.PowerLevelNB: }\\
 \hline
 initProcessing, obtainXrec\\
 \hline
 \end{longtable}
 
-\section{Use Examples}
+\section{Examples of use}
 
 \subsection{General considerations.}
 
-Management API, despite its simplicity, raises several issues to consider. This section describes general issues common to both modes of operation. In the following sections, the specific aspects of operating modes are discussed. 
+Management of the API\footnote{In \url{https://github.com/miguel55/NoiseReduXtion/tree/master/apps/JavaReduXtion} a sample application which includes Java developed library is available.}, despite its simplicity, raises several issues to consider. This section describes general issues common to both modes of operation. In the following sections, the specific aspects of operating modes are discussed. 
 
 The broad outlines to consider to keep in mind when using API any mode are:
 
 \begin{itemize}
 \item Algorithms receive short[] signals as inputs and returns a short[] signal as output, that is, PCM 16 bits encoding signals.
-\item If the sampling frequency ($F_s$) is specified, its value must be compatible with the device. Android smartphones often use 8000, 16000 or 44100 Hz. API only allows these values, in order to prevent errors in audio recording. If user tries to introduce another value, an \emph{InvalidFrequencyException} will be thrown.
-\item The number of samples for FFT ($M$) must be power of 2 (typical values are 256, 512,...). Default value is 256. If the user introduces a value that is not power of 2, a \emph{RuntimeException} will be thrown.
-\item If frame length ($L$) and the number of samples for FFT ($M$) are specified, the first value must be lower than the value of the second. Otherwise, an \emph{InvalidParametersException} will be thrown.
+\item If the sampling frequency ($F_s$) is specified, its value must be compatible with the device. Android smartphones often use 8000, 16000 or 44100 Hz. API only allows these values, in order to prevent errors in audio recording. If user tries to introduce another value, an \texttt{InvalidFrequencyException} will be thrown.
+\item The number of samples for FFT ($M$) must be power of 2 (typical values are 256, 512...). Default value is 256. If the user introduces a value that is not power of 2, a \texttt{RuntimeException} will be thrown.
+\item If frame length ($L$) and the number of samples for FFT ($M$) are specified, the first value must be lower than the value of the second. Otherwise, an \texttt{InvalidParametersException} will be thrown.
 \item For both versions of MVDR algorithm, noise estimation is done from: first 30 frames in case of \emph{frame-based} operation mode or first and last 20 frames in case of \emph{note-based} operation mode. Thus, speech note duration should be greater than 0.5s - 1s if an acceptable performance wants to be achieved; or frame number should widely overcome 30 in \emph{frame-based} operation mode.
 
 \end{itemize}
@@ -2946,7 +2991,13 @@ outputFrame = object.processing (frame1, frame2, false);
 \end{center}
 \end{shaded}
 
-\item Process the last frame:
+\item Process the last frame\footnote{Frame length for the output signal is not always the same because of the Overlap-Add method. It differs in first and last frame.
+
+\begin{itemize}
+\item First frame: $\frac{L}{2}$ samples.
+\item Intermediate frames: L samples.
+\item Last frame: $L+\frac{L}{2}$ samples.
+\end {itemize}}:
 
 \begin{shaded}
 \begin{center}
@@ -2956,13 +3007,6 @@ outputFrame = object.processing (frame1, frame2, true);
 
 \end{enumerate}
 
-\textbf{Note:} frame length for the output signal is not always the same because of the Overlap-Add method. It differs in first and last frame. 
-
-\begin{itemize}
-\item First frame: $\frac{L}{2}$ samples.
-\item Intermediate frames: L samples.
-\item Last frame: $L+\frac{L}{2}$ samples.
-\end {itemize}
 
 \subsection{\emph{Note-based} operation mode.}
 
@@ -3008,7 +3052,7 @@ outputSignal = object.processing ();
 
 \subsection{Filtering algorithms. Change attenuation factor and delay.}
 
-If another attenuation factor or delay want to be used, they can be altered by means of static methods of FilteringFB or FilteringNB abstract class, as follows. Changes have to be done through Filtering classes methods (although MVDR inherites this methods). This way, changes are done before initialization of objects, for every algorithm. 
+If another attenuation factor or delay want to be used, they can be altered by means of static methods of \texttt{FilteringFB} or \texttt{FilteringNB} abstract class, as follows. Changes have to be done through \texttt{Filtering} classes methods (although \texttt{MVDR} inherites this methods). This way, changes are done before initialization of objects, for every algorithm. 
 
 \begin{itemize}
 \item For changing delay between channels:
@@ -3019,7 +3063,7 @@ If another attenuation factor or delay want to be used, they can be altered by m
 \end{center}
 \end{shaded}
 
-Where 'newDel' is a double precision float which indicates the number of delay samples.
+Where \texttt{newDel} is a double precision float which indicates the number of delay samples.
 
 \item For changing attenuation factor between microphones:
 
@@ -3029,13 +3073,13 @@ Where 'newDel' is a double precision float which indicates the number of delay s
 \end{center}
 \end{shaded}
 
-Where 'newAt' is a double precision float vector which indicates the attenuation in magnitude in each frequency bin. It must have $\frac{M}{2}+1$ rows and 2 columns, the first of which is all one.
+Where \texttt{newAt} is a double precision float vector which indicates the attenuation in magnitude in each frequency bin. It must have $\frac{M}{2}+1$ rows and 2 columns, the first of which is all one.
 
 \end{itemize}
 
 \subsection{PLD algorithm. Change distance between microphones.}
 
-If another microphone dimensions want to be used, they can be changed through constructor of PLD class, as follows:
+If another microphone dimensions want to be used, they can be changed through constructor of \texttt{PLD} class, as follows:
 
 \begin{itemize}
 \item In \emph{frame-based} operation mode, with default sampling frecuency and frame lengths (time domain and for FFT):
@@ -3053,13 +3097,13 @@ PLDFB object = new PLDFB(x1,x2,false,8000,160,256,newD);
 \end{shaded}
 \end{itemize} 
 
-Where 'newD' is a double precision float which indicates the distance between microphones in meters.
+Where \texttt{newD} is a double precision float which indicates the distance between microphones in meters.
 
 \section{Native library operation.}
 
 As Java language implementation, which is barely useful in the context of the usage by a smartphone, a native code implementation has been developed with better results. These libraries can even be used in real-time conditions with the appropiate device.
 
-\emph{Frame-based} operation mode is recommended for the library generated since their performance is better than \emph{note-based} mode one, although this one is more complex. The reason is that large vector management in JNI as well as their exchange between Java and C++ has high computational complexity. In addition, currently only the implementation with default parameters is included, but in a subsequent release the implementation with user-defined parameters will be incorporated.
+\emph{Frame-based} operation mode is recommended for the library generated\footnote{In \url{https://github.com/miguel55/NoiseReduXtion/tree/master/apps/NativeReduXtion} a sample application which includes native code library is available.} since their performance is better than \emph{note-based} mode one, although this one is more complex. The reason is that large vector management in JNI as well as their exchange between Java and C++ has high computational complexity. In addition, currently only the implementation with default parameters is included, but in a subsequent release the implementation with user-defined parameters will be incorporated.
 
 The shared library noiseReduXtion is provided in its native code versions for these architectures: \emph{ARM-64}, \emph{Armeabi}, \emph{Armeabi-v7a}, \emph{Mips}, \emph{Mips-64}, \emph{x86} y \emph{x86-64}. Moreover, Java classes with native methods are included, for its use in any application.
 
@@ -3081,7 +3125,7 @@ static \{\\
         System.loadLibrary("noiseReduXtion");\\
 \}
 \end{shaded}
-\item Include the abstract class which groups native methods which are going to be used (for example, \emph{MVDRNBNat}) in our project.
+\item Include the abstract class which groups native methods which are going to be used (for example, \texttt{MVDRNBNat}) in our project.
 
 \item Inside code, call method which implements the chosen algorithm, with signals to process (type \emph{short[]}) and their number of samples (type \emph{int}) as parameters; and store the result in an \emph{array} of \emph{short[]} type:
 
@@ -3122,7 +3166,7 @@ static \{\\
         System.loadLibrary("noiseReduXtion");\\
 \}
 \end{shaded}
-\item Include the abstract class which groups native methods which are going to be used (for example, \emph{MVDRFBNat}) in our project.
+\item Include the abstract class which groups native methods which are going to be used (for example, \texttt{MVDRFBNat}) in our project.
 
 \item Inside code, create the object which implements the chosen algorithm and stores the state of the process, through:
 
@@ -3161,7 +3205,7 @@ outputFrame = PLDFBNat.processing (frame1, frame2, 2);
 \end{center}
 \end{shaded}
 
-\item Process the last frame, whose result is a frame of $L+\frac{L}{2}$ samples.
+\item Process the last frame, whose result is a frame of $L+\frac{L}{2}$ samples.\footnote{Instead of using a boolean variable as in Java case, it is necessary an integer variable to express the type of each frame (0 for first frame, 1 for last one and any other integer for the rest of them). JNI must know in advance the length of every processed frame because of the processing method returns a point to a vector.}
 
 \begin{shaded}
 \begin{center}
@@ -3171,12 +3215,10 @@ outputFrame = PLDFBNat.processing (frame1, frame2, 1);
 
 \end{enumerate}
 
-\textbf{Note:} instead of using a boolean variable as in Java case, it is necessary an integer variable to express the type of each frame (0 for first frame, 1 for last one and any other integer for the rest of them). JNI must know in advance the length of every processed frame because of the processing method returns a point to a vector. 
-
 \newpage
 \section{Estimated attenuation factor for filtering algorithms.} \label{attabla}
 
-The estimated attenuation factor, in magnitude, is:
+The estimated attenuation factor\footnote{Frequency bins are uniformly distributed along frequencies between 0 and $\frac{F_s}{2}$. In this case, 129 bins are regarded because length for FFT is $M=256$ samples, and their frecuencies are uniformly distributed between 0 and 4000 Hz.}, in magnitude, is:
 
 \begin{longtable}{|p{3cm}|p{4cm}|}
 \hline
@@ -3571,8 +3613,6 @@ The estimated attenuation factor, in magnitude, is:
 129 & 1.0, 0.198113207547170\\
 \hline
 \end{longtable}
-
-\textbf{Note:} frequency bins are uniformly distributed along frequencies between 0 and $\frac{F_s}{2}$. In this case, 129 bins are regarded because length for FFT is $M=256$ samples, and their frecuencies are uniformly distributed between 0 and 4000 Hz.
 
 \section*{References}
 

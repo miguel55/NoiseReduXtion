@@ -1,4 +1,6 @@
 \documentclass[a4paper,11pt,oneside,openany]{book}
+%\documentclass[a4paper,twoside,11pt,titlepage]{book}
+%\usepackage[utf8]{inputenc}
 \usepackage[latin1]{inputenc} 
 \usepackage[spanish,activeacute,es-tabla]{babel}
 \usepackage[none]{hyphenat}
@@ -20,7 +22,13 @@
 \addto\shorthandsspanish{\let\esperiod\es@period@code}
 \makeatother
 
+% \usepackage[style=list, number=none]{glossary} %
+%\usepackage{titlesec}
+%\usepackage{pailatino}
+
+%\usepackage[chapter]{algorithm}
 \RequirePackage{verbatim}
+%\RequirePackage[Glenn]{fncychap}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
 \usepackage{afterpage}
@@ -31,21 +39,32 @@
 
 \hypersetup{
 pdfauthor = {Miguel Molina Moreno: miguel21@correo.ugr.es},
-pdftitle = {Documentación de la API Noise-ReduXtion.},
+pdftitle = {Documentación de la API NoiseReduXtion.},
 pdfsubject = {},
 pdfkeywords = {reducción de ruido, smartphones, realce de la voz, Android},
-pdfcreator = {LaTeX con el paquete ....},
+pdfcreator = {LaTeX con el paquete pdfLatex},
 pdfproducer = {pdflatex}
 }
 
+%\hyphenation{}
+
+
+%\usepackage{doxygen/doxygen}
+%\usepackage{pdfpages}
 \usepackage{url}
 \usepackage{colortbl,longtable}
 \usepackage[stable]{footmisc}
+%\usepackage{index}
 
+%\makeindex
+%\usepackage[style=long, cols=2,border=plain,toc=true,number=none]{glossary}
+%\makeglossary
 \hypersetup{
 	colorlinks=true,
 	linkcolor=blue,
 	}
+
+%\renewcommand{\glossaryname}{Glosario}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -61,6 +80,11 @@ pdfproducer = {pdflatex}
 \setlength{\headheight}{1.5\headheight}
 
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+%Definimos los tipos teorema, ejemplo y definición podremos usar estos tipos
+%simplemente poniendo \begin{teorema} \end{teorema} ...
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{ejemplo}{Ejemplo}[chapter]
+\newtheorem{definicion}{Definición}[chapter]
 
 \definecolor{gray97}{gray}{.97}
 \definecolor{gray75}{gray}{.75}
@@ -79,9 +103,11 @@ pdfproducer = {pdflatex}
 \pagenumbering{arabic}
 \setlength{\parskip}{5pt}
 
-\chapter{Documentación de la API Noise-ReduXtion.}\label{docum}
+\chapter{Documentación de la API NoiseReduXtion}\label{docum}
+
 \section{Descripción}
-La API Noise-Reduxtion proporciona una serie de algoritmos para su uso con móviles con micrófono dual, en aplicaciones que procesen la voz con el objetivo final de la percepción por parte del usuario, no un reconocedor de voz. Ejemplos de este tipo de aplicaciones son aquellas que implementan llamadas, trabajan con notas de voz,...
+
+La API NoiseReduxtion proporciona una serie de algoritmos para su uso con móviles con micrófono dual, en aplicaciones que procesen la voz con el objetivo final la percepción por parte del usuario, no un reconocedor de voz. Ejemplos de este tipo de aplicaciones son aquellas que implementan llamadas, trabajan con notas de voz, etc.
 
 Los algoritmos de la API trabajan en el dominio de la frecuencia. Además, la API incluye recursos para:
 
@@ -108,22 +134,22 @@ Esta API se puede usar con los siguientes propósitos:
 \item Reducción de ruido en notas de audio largas, o procesamiento de la voz en tiempo real. En este caso se usan los recursos del modo de operación \emph{frame-based}. La API proporciona tramas de audio de voz limpia con el mismo tamaño que las tramas entrantes. El rendimiento depende de la capacidad de procesamiento del teléfono móvil utilizado.
 \end{itemize}
 
-En cuanto a la posición del móvil adecuada para la grabación del sonido; en principio los algoritmos pertenecientes a la API han sido desarrollados para su uso en posición conversacional. Sin embargo, también se pueden aplicar cuando el teléfono está localizado enfrente de la boca, cercano a ella, ya que el contexto acústico es similar a la posición conversacional: el micrófono primario captura la señal de voz limpia con mucha más potencia que el secundario. La distancia entre micrófonos está en torno a 10 cm.
+En cuanto a la posición del móvil adecuada para la grabación del sonido; en principio los algoritmos pertenecientes a la API han sido desarrollados para su uso en posición conversacional. Sin embargo, también se pueden aplicar cuando el teléfono está localizado frente a la boca, cercano a ella, ya que el contexto acústico es similar a la posición conversacional: el micrófono primario captura la señal de voz limpia con mucha más potencia que el secundario. La distancia entre micrófonos está en torno a 10 cm.
 
-En este entorno, se puede esperar una mejora de entre 2 y 6 dB en SNR (o incluso mayor si la SNR de las señales de entrada es muy pobre) y de entre 0.05 y 0.25 en PESQ a partir de la aplicación de un algoritmo adecuado de la API. El rendimiento específico depende del contexto acústico, la SNR de la señal de entrada,...
+En este entorno, se puede esperar una mejora de entre 2 y 6 dB en SNR (o incluso mayor si la SNR de las señales de entrada es muy pobre) y de entre 0.05 y 0.25 en PESQ a partir de la aplicación de un algoritmo adecuado de la API. El rendimiento específico depende del contexto acústico, la SNR de la señal de entrada, etc.
 
 \section{Detalles de los algoritmos}
 
-La API Noise-ReduXtion reúne algunos modernos algoritmos que pueden ser usados en \emph{smartphones} con dos micrófonos, para mejorar la calidad de la voz a oídos de los usuarios. A continuación se describen las principales características de cada algoritmo, para facilitar su elección y uso por parte de los usuarios.
+La API NoiseReduXtion reúne algunos modernos algoritmos que pueden ser usados en \emph{smartphones} con dos micrófonos, para mejorar la calidad de la voz a oídos de los usuarios. A continuación se describen las principales características de cada algoritmo, para facilitar su elección y uso por parte de los usuarios.
 
 \begin{itemize}
-\item MVDR (\emph{Minimum Variance Distortionless Response}) con retardo entre micrófonos. Esta es la implementación estándar del algoritmo MVDR, pero adaptada para su uso en móviles en el dominio de la frecuencia (obteniendo la magnitud de la atenuación para cada intervalo de frecuencias). El algoritmo MVDR trata de compensar la atenuación y el retardo entre micrófonos a través de una combinación entre canales con diferentes pesos. Sus principales ventajas son la naturalidad de la voz y una cierta independencia de la SNR de la señal de entrada. Sin embargo, en los tests realizados la calidad de la voz se ve degradada por reverberación. Aún así se incluye en la API, ya que si las dimensiones del teléfono se hacen mayores puede ser útil.
+\item MVDR (\emph{Minimum Variance Distortionless Response}) con retardo entre micrófonos. Esta es la implementación estándar del algoritmo MVDR, pero adaptada para su uso en móviles en el dominio de la frecuencia (obteniendo la magnitud de la atenuación para cada \emph{bin} de frecuencias). El algoritmo MVDR trata de compensar la atenuación y el retardo entre micrófonos a través de una combinación entre canales con diferentes pesos. Sus principales ventajas son la naturalidad de la voz y una cierta independencia de la SNR de la señal de entrada. Sin embargo, en los tests realizados la calidad de la voz se ve degradada por reverberación. Aún así se incluye en la API, ya que si las dimensiones del teléfono se hacen mayores puede ser útil.
 
 \item MVDR (\emph{Minimum Variance Distortionless Response}) sin retardo entre micrófonos. Es una implementación alternativa del algoritmo MVDR que no tiene en cuenta el retardo. Si la distancia entre micrófonos es pequeña (en torno a 10 cm), el retardo se puede despreciar sin un gran incremento del error. Además se previene la reverberación en la señal de salida. La voz obtenida tiene una gran naturalidad y una fuerte reducción del ruido. Por otra parte, el MVDR tiene una complejidad computacional media.
 
 \item PLD (\emph{Power Level Differences}). El algoritmo PLD usa la diferencia de potencia entre canales para el cálculo de una ganancia para ser aplicada a la señal del primer canal. Consigue una fuerte reducción del ruido pero la naturalidad de la señal de voz se ve degradada por el ruido musical. La API contiene un algoritmo para suprimir parte del ruido musical. Si se usa, los resultados mejoran. La cantidad de ruido eliminado depende de la SNR de la señal de entrada, el algoritmo actúa mejor con SNRs bajas.
 
-\item PLR (\emph{Power Level Ratio}) basado en la función sigmoide. El algoritmo tiene el mismo fundamento que el PLD: el cálculo de una ganancia para realzar la señal del primer canal. Sin embargo, el procedimiento es mucho más simple. La cantidad de ruido eliminado es menor que en el caso del PLD, pero la presencia de ruido musical también es menor. Además, la complejidad computacional es es menor que en el resto de algoritmos.
+\item PLR (\emph{Power Level Ratio}) basado en la función sigmoide. El algoritmo tiene el mismo fundamento que el PLD: el cálculo de una ganancia para realzar la señal del primer canal. Sin embargo, el procedimiento es mucho más simple. La cantidad de ruido eliminado es menor que en el caso del PLD, pero la presencia de ruido musical también es menor. Además, la complejidad computacional es menor que en el resto de algoritmos.
 
 \end{itemize}
 
@@ -140,16 +166,13 @@ Estos son los paquetes presentes en la API:
 \hline
 \textbf{speech.note} & Proporciona las clases para el modo de operación \emph{note-based}.\\
 \hline
-\textbf{speech.frame} & Proporciona las clases para el modo de operación \emph{frame-based}.\\
+\textbf{speech.frame}\footnote{Los paquetes speech.note y speech.frame tienen la misma estructura, pero su uso e implementación de los métodos es distinta.} & Proporciona las clases para el modo de operación \emph{frame-based}.\\
 \hline
 \end{longtable}
-
-\textbf{Nota: }los paquetes speech.note y speech.frame tienen la misma estructura, pero su uso e implementación de los métodos es distinta.
 
 \section{Jerarquía de clases}
 
 El árbol de jerarquía para todos los paquetes de la librería es el siguiente:
-\newline
 
 \begin{itemize}
 \item speech
@@ -203,13 +226,23 @@ El diagrama de jerarquía para cada modo de operación con las relaciones entre cl
 \end{center}
 \end{figure}
 
-Las clases abstractas se muestran con tipografía cursiva. Las superclases de las que heredan otras tienen color azul, en negro se muestran las clases comunes a todos los paquetes, y en morado las clases de los algoritmos que deben ser usadas para la aplicación de los algoritmos. En color verde se muestra la clase Enhpro, que implementa el método \emph{Overlap-Add}.
+Las clases abstractas se muestran con tipografía cursiva. Las superclases de las que heredan otras tienen color azul, en negro se muestran las clases comunes a todos los paquetes, y en morado las clases de los algoritmos que deben ser usadas para la aplicación de los algoritmos. En color verde se muestra la \texttt{clase Enhpro}, que implementa el método \emph{Overlap-Add}.
 
-En cuanto a las relaciones entre clases, la herencia se simboliza con una flecha blanca. Es el caso de las clases \emph{Filtering} y \emph{PowerLevel} con \emph{NoiseReduction}, por ejemplo. El rombo blanco indica que uno o más objetos de una clase son utilizados por otra clase (la denominada agregación). 
+En cuanto a las relaciones entre clases, la herencia se simboliza con una flecha blanca. Es el caso de las clases \texttt{Filtering} y \texttt{PowerLevel} con \texttt{NoiseReduction}, por ejemplo. El rombo blanco indica que uno o más objetos de una clase son utilizados por otra clase (la denominada agregación). 
 
 \section{Clases}
 
 \subsection{Complex}
+
+\subsubsection*{Identificación}
+
+En esta sub-sección (a lo largo de todo el documento) se incluye la jerarquía de paquetes precedente a cada clase así como el nombre completo de la misma, de la manera siguiente:
+
+\begin{shaded}
+\begin{center}
+paquete1.paquete2.NombreClase $>>>$ Nombre de la clase con identificadores
+\end{center}
+\end{shaded}
 
 speech.common.Complex $>>>$ public class Complex extends java.lang.Object
 
@@ -494,6 +527,8 @@ un objeto String con el número complejo en forma canónica.\\
 
 \subsection{FFT}
 
+\subsubsection*{Identificación}
+
 speech.common.FFT $>>>$ public abstract class FFT extends java.lang.Object
 
 \subsubsection*{Visión General}
@@ -567,6 +602,8 @@ un vector double resultado de la convolución, con número de muestras suma de las
 \end{longtable}
 
 \subsection{MusFilter}
+
+\subsubsection*{Identificación}
 
 speech.common.MusFilter $>>>$ public class MusFilter extends java.lang.Object
 
@@ -658,6 +695,8 @@ una matriz tipo double con las ganancias modificadas para cada trama.\\
 \end{longtable}
 
 \subsection{EnhproFB}
+
+\subsubsection*{Identificación}
 
 speech.common.EnhproFB $>>>$ public class EnhproFB extends java.lang.Object
 
@@ -845,6 +884,8 @@ un vector con la columna del índice dado.\\
 
 \subsection{NoiseReductionFB}
 
+\subsubsection*{Identificación}
+
 speech.common.NoiseReductionFB $>>>$ public abstract class NoiseReductionFB extends java.lang.Object
 
 \subsubsection*{Subclases Directas}
@@ -936,6 +977,8 @@ Llama al método de pre-procesamiento de la clase EnhproFB para convertir las tra
 
 \subsection{FilteringFB}
 
+\subsubsection*{Identificación}
+
 speech.common.FilteringFB $>>>$ public abstract class FilteringFB extends NoiseReductionFB
 
 \subsubsection*{Subclases Directas}
@@ -992,7 +1035,7 @@ void & \textbf{meanCorr(double[] v1, double v2[], int end)}\\
 \textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
 \hline
 double[][] & \textbf{at}\\
-&Factor de atenuación (en magnitud) entre micrófonos, para cada intervalo de frecuencia. Valores por defecto: ver \label{attabla}.\\
+&Factor de atenuación (en magnitud) entre micrófonos, para cada \emph{bin} de frecuencia. Valores por defecto: ver \label{attabla}.\\
 \hline
 private double & \textbf{del}\\
 &Retardo entre micrófonos, en muestras. Por defecto: 2.2745 muestras.\\
@@ -1001,7 +1044,7 @@ final Complex[] & \textbf{d}\\
 &Estimación del \emph{steering vector}.\\
 \hline
 final double[] & \textbf{f}\\
-&Vector de frecuencias para cada intervalo.\\
+&Vector de frecuencias para cada \emph{bin}.\\
 \hline
 Complex[] & \textbf{w}\\
 &Vector de pesos.\\
@@ -1105,6 +1148,8 @@ Calcula la media de la correlación entre el número de muestras de v1 y v2 dado p
 
 
 \subsection{PowerLevelFB}
+
+\subsubsection*{Identificación}
 
 speech.common.PowerLevelFB $>>>$ public abstract class PowerLevelFB extends NoiseReductionFB
 
@@ -1239,7 +1284,7 @@ la trama en el dominio del tiempo, en formato entero \emph{short}.\\
 \hline
 \textbf{private void rec(double[][] Gan, Complex[][] Sfreq)}\\
 \hline
-Aplica la ganancia espectral a las tramas en el dominio de la frecuencia a través de un producto en cada intervalo de frecuencia.\\
+Aplica la ganancia espectral a las tramas en el dominio de la frecuencia a través de un producto en cada \emph{bin} de frecuencia.\\
 \textbf{\textcolor{gray45}{Parámetros:}}\\
 \emph{Gan:} ganancia espectral.\\
 \emph{Sfreq:} tramas en el dominio de la frecuencia.\\
@@ -1247,6 +1292,8 @@ Aplica la ganancia espectral a las tramas en el dominio de la frecuencia a travé
 \end{longtable}
 
 \subsection{MVDRFB}
+
+\subsubsection*{Identificación}
 
 speech.common.MVDRFB $>>>$ public class MVDRFB extends FilteringFB
 
@@ -1368,6 +1415,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 
 \subsection{MVDRdFB}
 
+\subsubsection*{Identificación}
+
 speech.common.MVDRdFB $>>>$ public class MVDRdFB extends FilteringFB
 
 \subsubsection*{Visión General}
@@ -1488,6 +1537,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 
 \subsection{PLDFB}
 
+\subsubsection*{Identificación}
+
 speech.common.PLDFB $>>>$ public class PLDFB extends PowerLevelFB
 
 \subsubsection*{Visión General}
@@ -1553,7 +1604,7 @@ private final double & \textbf{gamma}\\
 &Factor de sobrestimación del ruido.  Default 4.\\
 \hline
 private double[] & \textbf{f}\\
-&Vector de frecuencias para cada intervalo.\\
+&Vector de frecuencias para cada \emph{bin}.\\
 \hline
 private double[] & \textbf{Coh}\\
 &Función de coherencia para campo de ruido difuso.\\
@@ -1666,6 +1717,8 @@ initProcessing, obtainXrec\\
 \end{longtable}
 
 \subsection{SigmoidFB}
+
+\subsubsection*{Identificación}
 
 speech.common.SigmoidFB $>>>$ public class SigmoidFB extends PowerLevelFB
 
@@ -1780,6 +1833,8 @@ initProcessing, obtainXrec\\
 \end{longtable}
 
 \subsection{EnhproNB}
+
+\subsubsection*{Identificación}
 
 speech.common.EnhproNB $>>>$ public class EnhproNB extends java.lang.Object
 
@@ -1952,6 +2007,8 @@ un vector con la columna de índice dado.\\
 \end{longtable}
 
 \subsection{NoiseReductionNB}
+
+\subsubsection*{Identificación}
  
 speech.common.NoiseReductionNB $>>>$ public abstract class NoiseReductionNB extends java.lang.Object
 
@@ -1971,10 +2028,10 @@ NoiseReductionNB es la superclase abstracta que agrupa todos los tipos de algori
 \hline
 \textbf{Constructor y Descripción}\\
 \hline
-\textbf{NoiseReductionFB (short[] x1, short[] x2)}\\
+\textbf{NoiseReductionNB (short[] x1, short[] x2)}\\
 Constructor por defecto.\\
 \hline
-\textbf{NoiseReductionFB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\textbf{NoiseReductionNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
 Constructor con parámetros definidos por el usuario.\\
 \hline
 \end{longtable}
@@ -2046,6 +2103,8 @@ Llama al método de pre-procesamiento de la clase EnhproNB para convertir las señ
 
 \subsection{FilteringNB}
 
+\subsubsection*{Identificación}
+
 speech.common.FilteringNB $>>>$ public abstract class FilteringNB extends NoiseReductionNB
 
 \subsubsection*{Subclases Directas}
@@ -2102,7 +2161,7 @@ void & \textbf{meanCorr(double[] v1, double v2[])}\\
 \textbf{Modificador y Tipo} & \textbf{Campo y Descripción}\\
 \hline
 double[][] & \textbf{at}\\
-&Factor de atenuación en magnitud entre micrófonos, para cada intervalo de frecuencia. Por defecto: \label{attabla}.\\
+&Factor de atenuación en magnitud entre micrófonos, para cada \emph{bin} de frecuencia. Por defecto: \label{attabla}.\\
 \hline
 private double & \textbf{del}\\
 &Retardo entre micrófonos, en muestras. Por defecto: 2.2745 muestras.\\
@@ -2111,7 +2170,7 @@ Complex[] & \textbf{d}\\
 &Estimación del \emph{steering vector}.\\
 \hline
 final double[] & \textbf{f}\\
-&Vector de frecuencias para cada intervalo.\\
+&Vector de frecuencias para cada \emph{bin}.\\
 \hline
 Complex[] & \textbf{w}\\
 &Vector de pesos.\\
@@ -2123,7 +2182,7 @@ private double[][] & \textbf{phases}\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Campos heredados de speech.frame.NoiseReductionFB: }\\
+\textbf{Campos heredados de speech.frame.NoiseReductionNB: }\\
 \hline
 freq\_time, Xf\\
 \hline
@@ -2214,6 +2273,8 @@ Calcula la media de la correlación entre las muestras de los vectores v1 y v2.\\
 
 
 \subsection{PowerLevelNB}
+
+\subsubsection*{Identificación}
 
 speech.common.PowerLevelNB $>>>$ public abstract class PowerLevelNB extends NoiseReductionNB
 
@@ -2350,7 +2411,7 @@ una trama en el dominio del tiempo, en formato entero \emph{short}.\\
 \hline
 \textbf{private void rec(double[][] Gan, Complex[][] Sfreq)}\\
 \hline
-Aplica la ganancia espectral a la señal en el dominio de la frecuencia, a través del producto en los intervalos de frecuencia.\\
+Aplica la ganancia espectral a la señal en el dominio de la frecuencia, a través del producto en los \emph{bins} de frecuencia.\\
 \textbf{\textcolor{gray45}{Parámetros:}}\\
 \emph{Gan:} ganancia espectral.\\
 \emph{Sfreq:} señal en el dominio de la frecuencia.\\
@@ -2358,6 +2419,8 @@ Aplica la ganancia espectral a la señal en el dominio de la frecuencia, a través
 \end{longtable}
 
 \subsection{MVDRNB}
+
+\subsubsection*{Identificación}
 
 speech.common.MVDRNB $>>>$ public class MVDRNB extends FilteringNB
 
@@ -2427,9 +2490,9 @@ at, d, f, w\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{public MVDRFB (short[] x1, short[] x2)}\\
+\textbf{public MVDRNB (short[] x1, short[] x2)}\\
 \hline
-Crea un nuevo objeto MVDRFB asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+Crea un nuevo objeto MVDRNB asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
 \textbf{\textcolor{gray45}{Parámetros:}}\\
 \emph{x1:} señal del primer canal.\\
 \emph{x2:} señal del segundo canal.\\
@@ -2438,9 +2501,9 @@ Crea un nuevo objeto MVDRFB asociado a las señales. Inicializa las dimensiones d
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{public MVDRFB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\textbf{public MVDRNB (short[] x1, short[] x2, int Freq, int Lframe, int Ltransf) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
 \hline
-Crea un nuevo objeto MVDRFB con parámetros definidos por el usuario asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+Crea un nuevo objeto MVDRNB con parámetros definidos por el usuario asociado a las señales. Inicializa las dimensiones de los vectores de muestras de ruido.\\
 \textbf{\textcolor{gray45}{Parámetros:}}\\
 \emph{x1:} señal del primer canal.\\
 \emph{x2:} señal del segundo canal.\\
@@ -2476,6 +2539,8 @@ initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 \end{longtable}
 
 \subsection{MVDRdNB}
+
+\subsubsection*{Identificación}
 
 speech.common.MVDRdNB $>>>$ public class MVDRdNB extends FilteringNB
 
@@ -2558,7 +2623,7 @@ Crea un nuevo objeto MVDRdNB asociado a las señales. Inicializa las dimensiones 
 \hline
 \textbf{public MVDRdNB (short[] x1, short[] x2)}\\
 \hline
-Crea un nuevo objeto MVDRNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores de muestras de ruido.\\
+Crea un nuevo objeto MVDRdNB con parámetros definidos por el usuario. Inicializa las dimensiones de los vectores de muestras de ruido.\\
 \textbf{\textcolor{gray45}{Parámetros:}}\\
 \emph{x1:} señal del primer micrófono.\\
 \emph{x2:} señal del segundo micrófono.\\
@@ -2587,13 +2652,15 @@ una señal en el dominio del tiempo, en formato entero \emph{short}.
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Métodos heredados de speech.frame.FilteringFB: }\\
+\textbf{Métodos heredados de speech.frame.FilteringNB: }\\
 \hline
 initProcessing, obtainXrec, \emph{changeAt}, \emph{changeDel}, meanCorr\\
 \hline
 \end{longtable}
 
-\subsection{PLDFB}
+\subsection{PLDNB}
+
+\subsubsection*{Identificación}
 
 speech.common.PLDNB $>>>$ public class PLDNB extends PowerLevelNB
 
@@ -2610,7 +2677,7 @@ PLDNB es la clase que implementa el algoritmo PLD (\emph{Power Level Differences
 \textbf{public PLDNB (short[] x1, short[] x2, boolean noise)}\\
 Constructor por defecto.\\
 \hline
-\textbf{public PLDFB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
+\textbf{public PLDNB (short[] x1, short[] x2, boolean noise, int Freq, int Lframe, int Ltransf, double d) throws EnhproNB.InvalidFrequencyException, EnhproNB.InvalidParametersException}\\
 Constructor con parámetros definidos por el usuario.\\
 \hline
 \end{longtable}
@@ -2749,13 +2816,15 @@ el máximo valor de los dos dados.\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\textbf{Métodos heredados de speech.frame.PowerLevelNB: }\\
 \hline
 initProcessing, obtainXrec\\
 \hline
 \end{longtable}
 
 \subsection{SigmoidNB}
+
+\subsubsection*{Identificación}
 
 speech.common.SigmoidNB $>>>$ public class SigmoidNB extends PowerLevelNB
 
@@ -2864,25 +2933,24 @@ la señal en el dominio del tiempo, en formato entero \emph{short}.\\
 
 \begin{longtable}{|p{12cm}|}
 \hline
-\textbf{Métodos heredados de speech.frame.PowerLevelFB: }\\
+\textbf{Métodos heredados de speech.frame.PowerLevelNB: }\\
 \hline
 initProcessing, obtainXrec\\
 \hline
 \end{longtable}
 
-\section{Ejemplos de Uso}
-
+\section{Ejemplos de uso}
 \subsection{Consideraciones generales.}
 
-El manejo de la API, a pesar de su sencillez, plantea varias cuestiones a considerar. Esta sección describe los problemas generales comunes a ambos modos de operación. En las secciones posteriores se tratan los aspectos específicos de cada uno de los modos de operación.
+El manejo de la API\footnote{En \url{https://github.com/miguel55/NoiseReduXtion/tree/master/apps/JavaReduXtion} se incluye una aplicación de ejemplo que incluye la librería Java desarrollada.}, a pesar de su sencillez, plantea varias cuestiones a considerar. Esta sección describe los problemas generales comunes a ambos modos de operación. En las secciones posteriores se tratan los aspectos específicos de cada uno de los modos de operación.
 
 Las líneas generales a tener en cuenta en el uso de la API en cualquier modo son:
 
 \begin{itemize}
 \item Los algoritmos reciben señales tipo \emph{short[]} como entradas y devuelven una señal \emph{short[]} como salida, esto es, señales codificadas en PCM con 16 bits.
-\item Si se especifica la frecuencia de muestreo ($F_s$), su valor debe ser compatible con el dispositivo. Los teléfonos Android suelen usar frecuencias de 8000, 16000 o 44100 Hz. La API sólo permite estos valores, para prevenir errores en la grabación de las señales. Si el usuario trata de introducir otro valor, se lanzará una excepción de tipo \emph{InvalidFrequencyException}.
-\item El número de muestras para la FFT ($M$) debe ser potencia de 2 (valores típicos son 256, 512,...). EL valor por defecto es 256. Si el usuario trata de introducir un valor que no es potencia de 2, se lanzará una excepción de tipo \emph{RuntimeException}.
-\item Si se especifican la longitud de la trama y el número de muestras para la FFT ($M$), el primer valor debe ser menor que el segundo. En otro caso, se lanzará una excepción de tipo \emph{InvalidParametersException}.
+\item Si se especifica la frecuencia de muestreo ($F_s$), su valor debe ser compatible con el dispositivo. Los teléfonos Android suelen usar frecuencias de 8000, 16000 o 44100 Hz. La API sólo permite estos valores, para prevenir errores en la grabación de las señales. Si el usuario trata de introducir otro valor, se lanzará una excepción de tipo \texttt{InvalidFrequencyException}.
+\item El número de muestras para la FFT ($M$) debe ser potencia de 2 (valores típicos son 256, 512...). EL valor por defecto es 256. Si el usuario trata de introducir un valor que no es potencia de 2, se lanzará una excepción de tipo \texttt{RuntimeException}.
+\item Si se especifican la longitud de la trama y el número de muestras para la FFT ($M$), el primer valor debe ser menor que el segundo. En otro caso, se lanzará una excepción de tipo \texttt{InvalidParametersException}.
 \item Para el caso del algoritmo MVDR en cualquiera de sus versiones, la estimación del ruido se realiza a partir de las primeras 30 tramas en el caso del modo de operación \emph{frame-based} y a partir de las primeras y últimas 20 tramas para el modo de operación \emph{note-based}. Así, lo adecuado es que la longitud de la nota de voz sea superior a 0.5s - 1s para la obtención de buenos resultados o que el número de tramas supere ampliamente las 30 en el caso del modo de operación basado en tramas.
 \end{itemize}
 
@@ -2918,7 +2986,13 @@ MVDRFB object = new MVDRFB (16000,320,512);
 
 \end{itemize}
 
-\item Procesar las tramas de señal indicando que no son la última a tratar:
+\item Procesar las tramas de señal indicando que no son la última a tratar\footnote{La longitud de la trama para la señal de salida no es siempre la misma debido al método \emph{Overlap-Add}. Difiere para la primera y la última de las tramas. 
+
+\begin{itemize}
+\item Primera trama: $\frac{L}{2}$ muestras.
+\item Tramas intermedias: L muestras.
+\item Última trama: $L+\frac{L}{2}$ muestras.
+\end {itemize}}:
 
 \begin{shaded}
 \begin{center}
@@ -2935,14 +3009,6 @@ outputFrame = object.processing (frame1, frame2, true);
 \end{shaded}
 
 \end{enumerate}
-
-\textbf{Nota:} la longitud de la trama para la señal de salida no es siempre la misma debido al método \emph{Overlap-Add}. Difiere para la primera y la última de las tramas. 
-
-\begin{itemize}
-\item Primera trama: $\frac{L}{2}$ muestras.
-\item Tramas intermedias: L muestras.
-\item Última trama: $L+\frac{L}{2}$ muestras.
-\end {itemize}
 
 \subsection{Modo de operación \emph{note-based}.}
 
@@ -2986,9 +3052,9 @@ outputSignal = object.processing ();
 
 \end{enumerate}
 
-\subsection{Algoritmos basados en filtrado. Cambio del factor de atenuación y retardo.}
+\subsection{Algoritmos basados en filtrado. Cambio del factor de atenuación y retardo}
 
-Si se desea usar otro factor de atenuación o retardo, se pueden modificar por medio de los métodos estáticos de las clases abstractas FilteringFB o FilteringNB, como se muestra a continuación. Los cambio se deben hacer por medio de las clases Filtering (aunque las clases MVDR heredan dichos métodos). De esta manera, los cambios se hacen antes de la inicialización de los objetos, y para todos los algoritmos. 
+Si se desea usar otro factor de atenuación o retardo, se pueden modificar por medio de los métodos estáticos de las clases abstractas \texttt{FilteringFB} o \texttt{FilteringNB}, como se muestra a continuación. Los cambio se deben hacer por medio de las clases \texttt{Filtering} (aunque las clases \texttt{MVDR} heredan dichos métodos). De esta manera, los cambios se hacen antes de la inicialización de los objetos, y para todos los algoritmos. 
 
 \begin{itemize}
 \item Para cambiar el retardo entre canales:
@@ -2999,7 +3065,7 @@ Si se desea usar otro factor de atenuación o retardo, se pueden modificar por me
 \end{center}
 \end{shaded}
 
-Donde newDel es un flotante de doble precisión que indica el número de muestras de retardo.
+Donde \texttt{newDel} es un flotante de doble precisión que indica el número de muestras de retardo.
 
 \item Para cambiar el factor de atenuación entre micrófonos:
 
@@ -3009,13 +3075,13 @@ Donde newDel es un flotante de doble precisión que indica el número de muestras 
 \end{center}
 \end{shaded}
 
-Donde newAt es un vector de flotantes de doble precisión que indica el factor de atenuación en magnitud para cada intervalo de frecuencias. Debe tener $\frac{M}{2}+1$ filas y 2 columnas, la primera de las cuales es todo unos.
+Donde \texttt{newAt} es un vector de flotantes de doble precisión que indica el factor de atenuación en magnitud para cada \emph{bin} de frecuencia. Debe tener $\frac{M}{2}+1$ filas y 2 columnas, la primera de las cuales es todo unos.
 
 \end{itemize}
 
 \subsection{Algoritmo PLD. Cambio de la distancia entre micrófonos.}
 
-Si se desean usar otras dimensiones entre micrófonos, éstas se pueden cambiar a través del constructor de la clase PLD como sigue:
+Si se desean usar otras dimensiones entre micrófonos, estas se pueden cambiar a través del constructor de la clase \texttt{PLD} como sigue:
 
 \begin{itemize}
 \item En el modo de operación \emph{frame-based}, con frecuencia de muestreo y longitudes de trama (en el dominio del tiempo y para la FFT) por defecto:
@@ -3033,17 +3099,17 @@ PLDNB object = new PLDNB(x1,x2,false,8000,160,256,newD);
 \end{shaded}
 \end{itemize} 
 
-Donde newD es un flotante de doble precisión que indica la distancia entre micrófonos en metros.
+Donde \texttt{newD} es un flotante de doble precisión que indica la distancia entre micrófonos en metros.
 
-\section{Manejo de la librería nativa.}
+\section{Manejo de la librería nativa}
 
 Al igual que la implementación Java, de poca utilidad en el contexto del uso por parte de un teléfono móvil, se ha realizado una implementación en código nativo que consigue mejores resultados, llegando incluso a la posibilidad del funcionamiento en tiempo real con el dispositivo adecuado. 
 
-Para la librería que se ha generado se aconseja el funcionamiento en modo \emph{frame-based}, ya que su rendimiento es más alto que para el modo \emph{note-based}, aunque sea más complejo de tratar. Esto se debe a que el manejo de vectores de gran longitud con JNI y su intercambio entre Java y C++ es más costoso. Además, de momento sólo se incluye la implementación con parámetros por defecto, pero posteriormente se ampliará dicho soporte a los métodos con parámetros definidos por el usuario.
+Para la librería que se ha generado\footnote{En \url{https://github.com/miguel55/NoiseReduXtion/tree/master/apps/NativeReduXtion} está disponible una aplicación de ejemplo que utiliza la librería en código nativo.} se aconseja el funcionamiento en modo \emph{frame-based}, ya que su rendimiento es más alto que para el modo \emph{note-based}, aunque sea más complejo de tratar. Esto se debe a que el manejo de vectores de gran longitud con JNI y su intercambio entre Java y C++ es más costoso. Además, de momento sólo se incluye la implementación con parámetros por defecto, pero posteriormente se ampliará dicho soporte a los métodos con parámetros definidos por el usuario.
 
 Se suministra la librería compartida noiseReduXtion en sus versiones en código nativo para las siguientes arquitecturas: \emph{ARM-64}, \emph{Armeabi}, \emph{Armeabi-v7a}, \emph{Mips}, \emph{Mips-64}, \emph{x86} y \emph{x86-64}. También se suministran las clases Java con los métodos nativos, para su uso en cualquier aplicación.
 
-\subsection{Modo de operación \emph{note-based}.}
+\subsection{Modo de operación \emph{note-based}}
 
 Los pasos a seguir para el procesamiento de una señal mediante la librería nativa en el modo de operación \emph{note-based}, con el entorno de desarrollo Android Studio son:
 
@@ -3060,7 +3126,7 @@ static \{\\
         System.loadLibrary("noiseReduXtion");\\
 \}
 \end{shaded}
-\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \emph{MVDRNBNat}) en nuestro proyecto.
+\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \texttt{MVDRNBNat}) en nuestro proyecto.
 
 \item En el código, llamar al método que implementa el algoritmo elegido con las señales a tratar (de tipo \emph{short[]}) y su longitud (tipo \emph{int}) como parámetros; y almacenar el resultado en un \emph{array} tipo \emph{short[]}:
 
@@ -3084,7 +3150,7 @@ resultado = PLDFBNat.PLDFB (signal1, signal2, longitud, true);
 \end{enumerate}
 
 
-\subsection{Modo de operación \emph{frame-based}.}
+\subsection{Modo de operación \emph{frame-based}}
 
 Los pasos para procesar una señal con uno de los algoritmos nativos en el modo de operación \emph{frame-based} son muy similares al caso anterior. Con el entorno Android Studio:
 
@@ -3101,7 +3167,7 @@ static \{\\
         System.loadLibrary("noiseReduXtion");\\
 \}
 \end{shaded}
-\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \emph{MVDRFBNat}) en nuestro proyecto.
+\item Incluir la clase abstracta que recoge los métodos nativos a utilizar (por ejemplo, \texttt{MVDRFBNat}) en nuestro proyecto.
 
 \item En el código, crear el objeto que implementa el algoritmo elegido y guarda el estado del proceso, a partir:
 
@@ -3140,7 +3206,7 @@ outputFrame = PLDFBNat.processing (frame1, frame2, 2);
 \end{center}
 \end{shaded}
 
-\item Procesar la última trama de señal cuyo resultado es una trama de $L+\frac{L}{2}$ muestras.
+\item Procesar la última trama de señal cuyo resultado es una trama de $L+\frac{L}{2}$ muestras.\footnote{En lugar de utilizar una variable booleana como en el caso Java, se ha de utilizar una variable entera para expresar el tipo de cada trama (0 para la primera trama, 1 para la última y cualquier otro entero para el resto de tramas). Esto es así porque JNI debe conocer de antemano la longitud de la trama resultante del método de procesamiento, que devuelve un puntero a un vector.}
 
 \begin{shaded}
 \begin{center}
@@ -3148,20 +3214,17 @@ outputFrame = PLDFBNat.processing (frame1, frame2, 1);
 \end{center}
 \end{shaded}
 
-
 \end{enumerate}
 
-\textbf{Nota:} en lugar de utilizar una variable booleana como en el caso Java, se ha de utilizar una variable entera para expresar el tipo de cada trama (0 para la primera trama, 1 para la última y cualquier otro entero para el resto de tramas). Esto es así porque JNI debe conocer de antemano la longitud de la trama resultante del método de procesamiento, que devuelve un puntero a un vector.
-
 \newpage
-\section{Factor de atenuación estimado para los algoritmos basados en filtrado.} \label{attabla}
+\section{Factor de atenuación estimado para los algoritmos basados en filtrado} \label{attabla}
 
-El factor de atenuación, en magnitud, es:
+El factor de atenuación\footnote{Los \emph{bins} de frecuencia están uniformemente distribuidos en las frecuencias entre 0 y $\frac{F_s}{2}$. En este caso, se tienen 129 \emph{bins} ya que la longitud para la FFT es de $M=256$ muestras, y sus frecuencias están uniformemente distribuidas en el intervalo entre 0 y 4000 Hz.}, en magnitud, es:
 
 \begin{longtable}{|p{3cm}|p{4cm}|}
 \hline
 \centering
-\textbf{\begin{center}Intervalo de frecuencia\end{center}} & \textbf{\begin{center}Vector de atenuaciones\end{center}}\\
+\textbf{\begin{center}\emph{Bin} de frecuencia\end{center}} & \textbf{\begin{center}Vector de atenuaciones\end{center}}\\
 \hline
 \centering
 1 & 1.0, 0.166666666666667\\
@@ -3551,8 +3614,6 @@ El factor de atenuación, en magnitud, es:
 129 & 1.0, 0.198113207547170\\
 \hline
 \end{longtable}
-
-\textbf{Nota:} los intervalos de frecuencia están uniformemente distribuidos en las frecuencias entre 0 y $\frac{F_s}{2}$. En este caso, se tienen 129 intervalos ya que la longitud para la FFT es de $M=256$ muestras, y sus frecuencias están uniformemente distribuidas en el intervalo entre 0 y 4000 Hz.
 
 
 \section*{Referencias}
