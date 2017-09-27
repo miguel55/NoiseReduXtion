@@ -1,7 +1,7 @@
 # NoiseReduXtion
 
 ## Descripción
-Este repositorio contendrá la librería generada para el Trabajo de Fin de Grado de Realce de la Voz en Dispositivos Móviles con Dos Micrófonos, así como la documentación de la misma.
+Este repositorio contiene la librería generada para el Trabajo de Fin de Grado de Realce de la Voz en Dispositivos Móviles con Dos Micrófonos, así como la documentación de la misma.
 
 La librería NoiseReduXtion se usa para el tratamiento de las señales procedentes de un teléfono móvil con un micrófono dual con el objetivo del realce de la voz y la reducción de ruido. La librería puede tratar señales completas de varios segundos o señales por tramas.
 
@@ -18,7 +18,7 @@ Se incluyen dos aplicaciones de ejemplo, en Java y código nativo (con las libre
 
 
 ## Description
-This repository will contain the API generated for EOG work called Speech Enhancement for Dual-Microphone Smartphones, and documentation for this one.
+This repository contains the API generated for EOG work called Speech Enhancement for Dual-Microphone Smartphones, and documentation for this one.
 
 NoiseReduXtion API is used for processing the signals captured by a dual-microphone smartphone with the aim of speech enhancement and noise reduction. API can process complete signals (with a few seconds duration) or signals frame to frame.
 
